@@ -1,57 +1,51 @@
-import { useEffect, useState } from "react";
-import "./App.css";
+import { useState } from 'react';
+import Login from './components/Login';
 
 function App() {
-  const [tareas, setTareas] = useState([]);
-  const [titulo, setTitulo] = useState("");
+  const [vistaActual, setVistaActual] = useState(() => {
+    const sesionGuardada = localStorage.getItem('usuarioActivo');
+    return sesionGuardada ? 'dashboard' : 'login';
+  });
 
-  useEffect(() => {
-    cargarTareas();
-  }, []);
+  const irAlDashboard = () => {
+    setVistaActual('dashboard');
+  };
 
-  async function cargarTareas() {
-    try {
-      const datos = await window.db.listarTareas();
-      setTareas(datos);
-    } catch (err) {
-      console.error(err);
-    }
-  }
-
-  async function agregarTarea() {
-    if (titulo.trim() === "") return;
-
-    try {
-      await window.db.crearTarea(titulo);
-
-      setTitulo("");
-
-      cargarTareas();
-    } catch (err) {
-      console.error(err);
-    }
-  }
+  const manejarCerrarSesion = () => {
+    localStorage.removeItem('usuarioActivo');
+    setVistaActual('login');
+  };
 
   return (
-    <div className="container">
-      <h1>Mis tareas</h1>
+    <div className="app-container">
+      {vistaActual === 'login' && (
+        <Login onLoginSuccess={irAlDashboard} />
+      )}
 
-      <div className="form">
-        <input
-          type="text"
-          placeholder="Escribe una tarea..."
-          value={titulo}
-          onChange={(e) => setTitulo(e.target.value)}
-        />
-
-        <button onClick={agregarTarea}>Agregar</button>
-      </div>
-
-      <ul>
-        {tareas.map((tarea) => (
-          <li key={tarea._id}>{tarea.titulo}</li>
-        ))}
-      </ul>
+      {vistaActual === 'dashboard' && (
+        <div style={{ padding: '3rem', textAlign: 'center', fontFamily: 'sans-serif' }}>
+           <h2 style={{ color: '#333333' }}>Panel de Control: ProjectHub</h2>
+           <p style={{ color: '#666666', marginTop: '1rem' }}>
+             Módulo de Dashboard de Proyectos en construcción.
+           </p>
+           
+           <button 
+             onClick={manejarCerrarSesion}
+             style={{ 
+               marginTop: '2rem', 
+               padding: '0.5rem 1rem', 
+               cursor: 'pointer',
+               backgroundColor: '#dc3545',
+               color: 'white',
+               border: 'none',
+               borderRadius: '5px',
+               fontWeight: 'bold'
+             }}
+           >
+             Cerrar Sesión
+           </button>
+        </div>
+      )}
     </div>
   );
 }
