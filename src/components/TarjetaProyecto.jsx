@@ -11,7 +11,7 @@ const porcenPatricio = "%17";
 /*meter parametros en el campo de la funcion cuando haya base de datos*/
 const TarjetaProyecto = () => {
   return (
-    <div className="div-fotoTarjeta">
+    <div className="div-contenedor">
       <div className="imagen-proyecto">
         <img src={patricio} alt={altPatricio} />
       </div>
