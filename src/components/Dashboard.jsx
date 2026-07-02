@@ -2,7 +2,7 @@ import React from "react";
 import TarjetaProyecto from "./TarjetaProyecto";
 import FechasProximas from "./FechasProximas";
 
-const Dashboard = () => {
+const Dashboard = ({ onLogout }) => {
   return (
     <div className="div-contenedor">
       <div className="div-tarjetas">
@@ -12,6 +12,8 @@ const Dashboard = () => {
       <div className="div-fechas">
         <FechasProximas />
       </div>
+
+      <button onClick={onLogout}>Cerrar sesion</button>
     </div>
   );
 };
