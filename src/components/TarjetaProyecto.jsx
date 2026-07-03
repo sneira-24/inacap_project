@@ -1,24 +1,36 @@
 import React from "react";
-import "/src/images/patriciobebe.jpg";
+import "./TarjetaProyecto.css";
 
-/*Datos de ejemplo*/
-const patricio = "/src/images/patriciobebe.jpg";
-const altPatricio = "altPatricio";
-const tituloPatricio = "Titulo Patricio";
-const fechaPatricio = "12/12/2012";
-const porcenPatricio = "%17";
-
-/*meter parametros en el campo de la funcion cuando haya base de datos*/
-const TarjetaProyecto = () => {
+const TarjetaProyecto = ({ imagen, alt, titulo, fecha, porcentaje }) => {
   return (
-    <div className="div-contenedor">
-      <div className="imagen-proyecto">
-        <img src={patricio} alt={altPatricio} />
+    <div className="flex items-center gap-4 bg-white rounded-xl p-3 hover:shadow-md transition-shadow">
+      <div className="flex-shrink-0">
+        <img
+          src={imagen}
+          alt={alt}
+          className="w-16 h-16 rounded-full object-cover border-2 border-gray-100"
+        />
       </div>
-      <div className="div-cuerpoTarjeta">
-        <h3>{tituloPatricio}</h3>
-        <p>Fecha esperada de termino: {fechaPatricio}</p>
-        <p>Realización: {porcenPatricio}</p>
+
+      <div className="flex-1 min-w-0">
+        <h3 className="text-base font-semibold text-gray-800 truncate">
+          {titulo}
+        </h3>
+        <p className="text-sm text-gray-500">
+          Fecha esperada de término: {fecha}
+        </p>
+
+        <div className="mt-2 flex items-center gap-2">
+          <div className="flex-1 h-2 bg-gray-200 rounded-full overflow-hidden">
+            <div
+              className="h-full bg-blue-500 rounded-full transition-all"
+              style={{ width: `${porcentaje}%` }}
+            />
+          </div>
+          <span className="text-xs font-medium text-gray-600 whitespace-nowrap">
+            {porcentaje}%
+          </span>
+        </div>
       </div>
     </div>
   );
