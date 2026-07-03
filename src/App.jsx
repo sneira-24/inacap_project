@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import Login from './components/Login';
 import Dashboard from './components/Dashboard';
+import TaskDetail from './components/TaskDetail';
 
 function App() {
   const [vistaActual, setVistaActual] = useState(() => {
@@ -10,6 +11,11 @@ function App() {
 
   const irAlDashboard = () => {
     setVistaActual('dashboard');
+  };
+
+
+  const irADetalleTarea = () => {
+    setVistaActual('detalleTarea');
   };
 
   const manejarCerrarSesion = () => {
@@ -24,7 +30,22 @@ function App() {
       )}
 
       {vistaActual === 'dashboard' && (
-        <Dashboard onLogout={manejarCerrarSesion} />
+        <Dashboard onLogout={manejarCerrarSesion}
+        onVerDetalle={irADetalleTarea} />
+      )}
+
+      {vistaActual === 'detalleTarea' && (
+        <div>
+          <div className="bg-gray-50 px-8 pt-4">
+            <button
+              onClick={irAlDashboard}
+              className="text-blue-600 hover:text-blue-800 font-bold flex items-center gap-2"
+            >
+              Volver al Dashboard
+            </button>
+          </div>
+          <TaskDetail />
+        </div>
       )}
     </div>
   );
