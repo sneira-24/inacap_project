@@ -12,6 +12,11 @@ function Login({ onLoginSuccess }) {
     return regex.test(correo);
   };
 
+  const validarPassword = (password) => {
+    const regex = /^(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,}$/;
+    return regex.test(password);
+  };
+
   const handleLogin = async (e) => {
     e.preventDefault();
     setError("");
