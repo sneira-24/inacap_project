@@ -1,7 +1,7 @@
 import { useState } from "react";
 import "./Kanban.css";
 
-function Kanban({ id_proyecto }) {
+function Kanban({ id_sprint }) {
   const [columns, setColumns] = useState({
     todo: {
       nombre: "To Do",
@@ -16,7 +16,7 @@ function Kanban({ id_proyecto }) {
     },
     done: {
       nombre: "Done",
-      items: [{ id: "5", content: id_proyecto }],
+      items: [{ id: "5", content: id_sprint }],
     },
   });
 
