@@ -2,7 +2,9 @@ import React from "react";
 import TarjetaProyecto from "./TarjetaProyecto";
 import FechasProximas from "./FechasProximas";
 import patricioImg from "/src/images/patriciobebe.jpg";
+import MyWork from './MyWork';
 import "./Dashboard.css";
+
 
 /*Datos de ejemplo — acá porque Dashboard es el "contenedor".
   Cuando haya backend, esto se reemplaza por un useEffect + fetch,
@@ -60,7 +62,7 @@ const fechasEjemplo = [
   { id: 3, proyecto: "Proyecto C", descripcion: "Cierre", fecha: "20/12/2012" },
 ];
 
-const Dashboard = ({ onLogout, email, onSprintClick }) => {
+const Dashboard = ({ onLogout, email, onSprintClick, onVerDetalle }) => {
   return (
     <div className="min-h-screen bg-gray-900">
       <nav className="flex items-center justify-between bg-gray-800 shadow-md px-6 py-3 mb-6 border-b border-gray-700">
@@ -93,9 +95,7 @@ const Dashboard = ({ onLogout, email, onSprintClick }) => {
         </div>
 
         <div className="bg-gray-800 rounded-2xl shadow-md p-6 border border-gray-700">
-          <h3 className="text-lg font-semibold text-gray-200">
-            aquí iría el módulo de mi trabajo hoy
-          </h3>
+          <MyWork onVerDetalle={onVerDetalle} />
         </div>
       </div>
     </div>
