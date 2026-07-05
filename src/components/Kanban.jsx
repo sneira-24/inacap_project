@@ -1,5 +1,4 @@
 import { useState } from "react";
-import "./Kanban.css";
 
 function Kanban({ id_sprint }) {
   const [columns, setColumns] = useState({

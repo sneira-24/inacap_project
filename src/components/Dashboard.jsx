@@ -2,9 +2,7 @@ import React from "react";
 import TarjetaProyecto from "./TarjetaProyecto";
 import FechasProximas from "./FechasProximas";
 import patricioImg from "/src/images/patriciobebe.jpg";
-import MyWork from './MyWork';
-import "./Dashboard.css";
-
+import MyWork from "./MyWork";
 
 /*Datos de ejemplo — acá porque Dashboard es el "contenedor".
   Cuando haya backend, esto se reemplaza por un useEffect + fetch,

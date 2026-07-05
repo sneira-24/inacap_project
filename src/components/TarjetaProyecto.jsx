@@ -1,5 +1,4 @@
 import React from "react";
-import "./TarjetaProyecto.css";
 
 const TarjetaProyecto = ({
   id,

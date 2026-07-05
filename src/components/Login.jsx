@@ -41,7 +41,9 @@ function Login({ onLoginSuccess }) {
     }
 
     if (!validarPassword(passwordLimpia)) {
-      setError("Contraseña inválida: Debe tener al menos 8 caracteres, incluyendo una mayúscula, una minúscula, un número y un carácter especial.");
+      setError(
+        "Contraseña inválida: Debe tener al menos 8 caracteres, incluyendo una mayúscula, una minúscula, un número y un carácter especial.",
+      );
       return;
     }
 
