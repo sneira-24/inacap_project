@@ -18,8 +18,10 @@ function App() {
 
   const [idSprint, setIdSprint] = useState(() => {});
 
-  const irAlDashboard = (email) => {
-    setEmailUsuario(email);
+  const irAlDashboard = (dato) => {
+    if (typeof dato === "string") {
+      setEmailUsuario(dato);
+    }
     setVistaActual("dashboard");
   };
 
