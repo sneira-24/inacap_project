@@ -16,6 +16,14 @@ const proyectosEjemplo = [
     fecha: "12/12/2012",
     porcentaje: 17,
   },
+  {
+    id: 2,
+    imagen: patricioImg,
+    alt: "altPatricio2",
+    titulo: "Titulo Patricio 2",
+    fecha: "06/07/6969",
+    porcentaje: 67,
+  },
 ];
 
 const fechasEjemplo = [
@@ -34,7 +42,7 @@ const fechasEjemplo = [
   { id: 3, proyecto: "Proyecto C", descripcion: "Cierre", fecha: "20/12/2012" },
 ];
 
-const Dashboard = ({ onLogout, email }) => {
+const Dashboard = ({ onLogout, email, onProjectClick }) => {
   return (
     <div className="min-h-screen bg-gray-50">
       <nav className="flex items-center justify-between bg-white shadow-sm px-6 py-3 mb-6">
@@ -53,16 +61,11 @@ const Dashboard = ({ onLogout, email }) => {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
           <div className="md:col-span-2 bg-white rounded-2xl shadow-md p-6 border border-gray-200 flex flex-col gap-3">
             {proyectosEjemplo.map((p) => (
-              <TarjetaProyecto key={p.id} {...p} />
-            ))}
-            {proyectosEjemplo.map((p) => (
-              <TarjetaProyecto key={p.id} {...p} />
-            ))}
-            {proyectosEjemplo.map((p) => (
-              <TarjetaProyecto key={p.id} {...p} />
-            ))}
-            {proyectosEjemplo.map((p) => (
-              <TarjetaProyecto key={p.id} {...p} />
+              <TarjetaProyecto
+                onProjectClick={onProjectClick}
+                key={p.id}
+                {...p}
+              />
             ))}
           </div>
 

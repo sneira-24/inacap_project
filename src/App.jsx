@@ -2,6 +2,7 @@ import { useState } from "react";
 import Login from "./components/Login";
 import Dashboard from "./components/Dashboard";
 import TaskDetail from "./components/TaskDetail";
+import Kanban from "./components/Kanban";
 
 function App() {
   const [vistaActual, setVistaActual] = useState(() => {
@@ -13,6 +14,8 @@ function App() {
     const sesionGuardada = localStorage.getItem("usuarioActivo");
     return sesionGuardada ? JSON.parse(sesionGuardada).email : "";
   });
+
+  const [idProyecto, setIdProyecto] = useState(() => {});
 
   const irAlDashboard = (email) => {
     setEmailUsuario(email);
@@ -29,6 +32,11 @@ function App() {
     setVistaActual("login");
   };
 
+  const irAKanban = () => {
+    setIdProyecto(localStorage.getItem("idProyecto"));
+    setVistaActual("kanban");
+  };
+
   return (
     <div className="app-container">
       {vistaActual === "login" && <Login onLoginSuccess={irAlDashboard} />}
@@ -38,6 +46,7 @@ function App() {
           onLogout={manejarCerrarSesion}
           onVerDetalle={irADetalleTarea}
           email={emailUsuario}
+          onProjectClick={(idProyecto) => irAKanban(idProyecto)}
         />
       )}
 
@@ -54,6 +63,8 @@ function App() {
           <TaskDetail />
         </div>
       )}
+
+      {vistaActual === "kanban" && <Kanban id_proyecto={idProyecto} />}
     </div>
   );
 }

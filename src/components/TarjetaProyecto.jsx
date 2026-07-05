@@ -1,7 +1,15 @@
 import React from "react";
 import "./TarjetaProyecto.css";
 
-const TarjetaProyecto = ({ imagen, alt, titulo, fecha, porcentaje }) => {
+const TarjetaProyecto = ({
+  id,
+  imagen,
+  alt,
+  titulo,
+  fecha,
+  porcentaje,
+  onProjectClick,
+}) => {
   return (
     <div className="flex items-center gap-4 bg-white rounded-xl p-3 hover:shadow-md transition-shadow">
       <div className="flex-shrink-0">
@@ -12,7 +20,11 @@ const TarjetaProyecto = ({ imagen, alt, titulo, fecha, porcentaje }) => {
         />
       </div>
 
-      <div className="flex-1 min-w-0">
+      <div
+        className="flex-1 min-w-0"
+        onMouseEnter={() => localStorage.setItem("idProyecto", id)}
+        onClick={onProjectClick}
+      >
         <h3 className="text-base font-semibold text-gray-800 truncate">
           {titulo}
         </h3>
