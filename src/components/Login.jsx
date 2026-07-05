@@ -13,7 +13,8 @@ function Login({ onLoginSuccess }) {
   };
 
   const validarPassword = (password) => {
-    const regex = /^(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,}$/;
+    // Exige: 1 minúscula, 1 mayúscula, 1 número, 1 carácter especial, mínimo 8 de largo
+    const regex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,}$/;
     return regex.test(password);
   };
 
@@ -39,8 +40,8 @@ function Login({ onLoginSuccess }) {
       return;
     }
 
-    if (passwordLimpia.length < 6) {
-      setError("La contraseña debe tener al menos 6 caracteres.");
+    if (!validarPassword(passwordLimpia)) {
+      setError("Contraseña inválida: Debe tener al menos 8 caracteres, incluyendo una mayúscula, una minúscula, un número y un carácter especial.");
       return;
     }
 
