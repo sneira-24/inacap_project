@@ -10,6 +10,7 @@ contextBridge.exposeInMainWorld("dbAPI", {
     ipcRenderer.invoke("db:updateById", { model, id, data }),
   deleteById: (model, id) => ipcRenderer.invoke("db:deleteById", { model, id }),
   validarLogin: (email, password) => ipcRenderer.invoke("db:validarLogin", { email, password }),
+  updateTarea: (id, nuevaDescripcion) => ipcRenderer.invoke("db:updateTarea", { id, nuevaDescripcion }),
 
   getSprintsByProject: (proyectoId) =>
     ipcRenderer.invoke("db:getSprintsByProject", proyectoId),

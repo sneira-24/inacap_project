@@ -4,8 +4,14 @@ function TaskDetail({ tareaId, onVolver }) {
   const [tarea, setTarea] = useState(null);
   const [comentarios, setComentarios] = useState([]);
   const [cargando, setCargando] = useState(true);
+  
+  // Estados para comentarios
   const [nuevoTexto, setNuevoTexto] = useState("");
   const [enviando, setEnviando] = useState(false);
+  
+  // Estados para edición de descripción
+  const [editando, setEditando] = useState(false);
+  const [textoTemp, setTextoTemp] = useState("");
 
   // Función para cargar o recargar los datos
   const cargarDetalles = async () => {
@@ -17,6 +23,11 @@ function TaskDetail({ tareaId, onVolver }) {
     try {
       const tareaDB = await window.dbAPI.findById("Tarea", tareaId, "asignado_a");
       setTarea(tareaDB);
+      
+      // Aseguramos que el texto temporal se llene con la descripción actual al cargar
+      if (tareaDB) {
+        setTextoTemp(tareaDB.descripcion || "");
+      }
 
       const comentariosDB = await window.dbAPI.getComentariosByTarea(tareaId);
       setComentarios(comentariosDB);
@@ -31,6 +42,29 @@ function TaskDetail({ tareaId, onVolver }) {
     cargarDetalles();
   }, [tareaId]);
 
+  // Función para guardar la nueva descripción en MongoDB
+  const handleGuardarDescripcion = async () => {
+    if (!textoTemp.trim()) {
+      alert("La descripción no puede estar vacía.");
+      return;
+    }
+
+    try {
+      const respuesta = await window.dbAPI.updateTarea(tareaId, textoTemp.trim());
+      
+      if (respuesta.exito) {
+        // Actualizamos la tarea en pantalla y cerramos el modo edición
+        setTarea({ ...tarea, descripcion: textoTemp.trim() });
+        setEditando(false);
+      } else {
+        alert(respuesta.mensaje || "Error al actualizar la tarea.");
+      }
+    } catch (error) {
+      console.error("Error al guardar la descripción:", error);
+      alert("Ocurrió un error al comunicarse con la base de datos.");
+    }
+  };
+
   // Función para enviar el comentario a MongoDB
   const manejarEnviarComentario = async (e) => {
     e.preventDefault();
@@ -41,7 +75,6 @@ function TaskDetail({ tareaId, onVolver }) {
     try {
       const sesion = JSON.parse(localStorage.getItem("usuarioActivo")) || {};
       const emailUsuario = sesion.email;
-
       let usuarioId = null;
 
       if (emailUsuario) {
@@ -110,18 +143,58 @@ function TaskDetail({ tareaId, onVolver }) {
         
         {/* Columna Izquierda: Descripción y Comentarios */}
         <div className="lg:col-span-2 space-y-6">
+          
+          {/* Bloque de Descripción Editable */}
           <div className="bg-gray-800 rounded-xl p-6 border border-gray-700 shadow-md">
-            <h2 className="text-xl font-semibold text-white mb-4">Descripción</h2>
-            <p className="text-gray-300 whitespace-pre-line leading-relaxed">
-              {tarea.descripcion || "Sin descripción proporcionada."}
-            </p>
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-xl font-semibold text-white">Descripción</h2>
+              {!editando && (
+                <button 
+                  onClick={() => setEditando(true)}
+                  className="text-sm bg-gray-700 hover:bg-gray-600 text-blue-400 px-3 py-1 rounded font-medium transition-colors cursor-pointer"
+                >
+                  Editar
+                </button>
+              )}
+            </div>
+
+            {editando ? (
+              <div className="space-y-3">
+                <textarea
+                  className="w-full h-40 bg-gray-900 text-gray-200 p-3 rounded-lg border border-gray-600 focus:outline-none focus:border-blue-500 font-sans leading-relaxed resize-y"
+                  value={textoTemp}
+                  onChange={(e) => setTextoTemp(e.target.value)}
+                  placeholder="Escribe la nueva descripción de la tarea..."
+                />
+                <div className="flex gap-2 justify-end">
+                  <button
+                    onClick={() => {
+                      setEditando(false);
+                      setTextoTemp(tarea.descripcion || ""); // Cancela y vuelve al original
+                    }}
+                    className="bg-gray-700 hover:bg-gray-600 text-gray-300 px-4 py-2 rounded font-medium transition-colors cursor-pointer"
+                  >
+                    Cancelar
+                  </button>
+                  <button
+                    onClick={handleGuardarDescripcion}
+                    className="bg-green-600 hover:bg-green-500 text-white px-4 py-2 rounded font-medium transition-colors cursor-pointer"
+                  >
+                    Guardar Cambios
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <p className="text-gray-300 whitespace-pre-line leading-relaxed">
+                {tarea.descripcion || "Sin descripción proporcionada."}
+              </p>
+            )}
           </div>
 
           {/* Sección de Comentarios Mejorada */}
           <div className="bg-gray-800 rounded-xl p-6 border border-gray-700 shadow-md">
             <h2 className="text-xl font-semibold text-white mb-4">Comentarios</h2>
             
-            {/* NUEVO: Formulario para agregar comentarios */}
             <form onSubmit={manejarEnviarComentario} className="mb-6">
               <div className="flex gap-2">
                 <input
@@ -142,7 +215,6 @@ function TaskDetail({ tareaId, onVolver }) {
               </div>
             </form>
 
-            {/* Lista de Comentarios */}
             {comentarios.length === 0 ? (
               <p className="text-gray-500 italic">No hay comentarios en esta tarea aún.</p>
             ) : (

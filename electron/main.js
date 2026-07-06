@@ -168,3 +168,25 @@ ipcMain.handle("db:validarLogin", async (_e, { email, password }) => {
     return { exito: false, mensaje: "Error interno del servidor." };
   }
 });
+
+ipcMain.handle("db:updateTarea", async (_e, { id, nuevaDescripcion }) => {
+  try {
+    const tareaActualizada = await models.Tarea.findByIdAndUpdate(
+      id,
+      { descripcion: nuevaDescripcion },
+      { 
+        returnDocument: "after",
+        runValidators: true
+      }
+    ).lean();
+
+    if (!tareaActualizada) {
+      return { exito: false, mensaje: "La tarea no existe en la base de datos." };
+    }
+
+    return { exito: true, tarea: serialize(tareaActualizada) };
+  } catch (error) {
+    console.error("Error al actualizar la tarea:", error);
+    return { exito: false, mensaje: "Error interno al guardar en la base de datos." };
+  }
+});
