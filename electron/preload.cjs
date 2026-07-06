@@ -9,6 +9,7 @@ contextBridge.exposeInMainWorld("dbAPI", {
   updateById: (model, id, data) =>
     ipcRenderer.invoke("db:updateById", { model, id, data }),
   deleteById: (model, id) => ipcRenderer.invoke("db:deleteById", { model, id }),
+  validarLogin: (email, password) => ipcRenderer.invoke("db:validarLogin", { email, password }),
 
   getSprintsByProject: (proyectoId) =>
     ipcRenderer.invoke("db:getSprintsByProject", proyectoId),

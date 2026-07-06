@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+import bcrypt from "bcryptjs";
 import dotenv from "dotenv";
 import {
   Usuario,
@@ -32,34 +33,37 @@ async function seed() {
   ]);
   console.log("Cleared existing collections");
 
+  const saltRounds = 10;
+  const hashPassword = await bcrypt.hash("Password123!", saltRounds);
+
   const [lider, dev1, dev2, producto, dev3] = await Usuario.insertMany([
     {
       email: "lider@project.cl",
-      contraseña: "Password123!",
+      contraseña: hashPassword,
       nombre: "Roberto Silva",
       rol: "lider",
     },
     {
       email: "dev1@project.cl",
-      contraseña: "Password123!",
+      contraseña: hashPassword,
       nombre: "Juan Pérez",
       rol: "desarrollador",
     },
     {
       email: "dev2@project.cl",
-      contraseña: "Password123!",
+      contraseña: hashPassword,
       nombre: "María García",
       rol: "desarrollador",
     },
     {
       email: "producto@project.cl",
-      contraseña: "Password123!",
+      contraseña: hashPassword,
       nombre: "Carlos López",
       rol: "producto",
     },
     {
       email: "dev3@project.cl",
-      contraseña: "Password123!",
+      contraseña: hashPassword,
       nombre: "Ana Rodríguez",
       rol: "desarrollador",
     },

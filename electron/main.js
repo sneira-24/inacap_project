@@ -1,5 +1,6 @@
 import { app, BrowserWindow, ipcMain } from "electron";
 import path from "path";
+import bcrypt from "bcryptjs";
 import { fileURLToPath } from "url";
 import isDev from "electron-is-dev";
 import { connectDB } from "./db/connection.js";
@@ -146,4 +147,24 @@ handle("db:getComentariosByTarea", async (_e, tareaId) => {
     .populate("usuario_id", "nombre")
     .sort({ fecha: 1 })
     .lean();
+});
+
+ipcMain.handle("db:validarLogin", async (_e, { email, password }) => {
+  try {
+    // Buscar al usuario
+    const user = await models.Usuario.findOne({ email }).lean();
+    if (!user) return { exito: false, mensaje: "El correo electrónico no está registrado." };
+
+    // Comparar la contraseña ingresada con el hash de la BD
+    const contrasenaValida = await bcrypt.compare(password, user.contraseña);
+    if (!contrasenaValida) return { exito: false, mensaje: "Contraseña incorrecta." };
+
+    // Quitar la contraseña del objeto antes de enviarlo a React (por seguridad)
+    const { contraseña, ...usuarioSeguro } = user;
+    return { exito: true, usuario: usuarioSeguro };
+
+  } catch (error) {
+    console.error("Error en login:", error);
+    return { exito: false, mensaje: "Error interno del servidor." };
+  }
 });

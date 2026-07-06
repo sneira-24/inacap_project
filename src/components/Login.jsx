@@ -40,47 +40,27 @@ function Login({ onLoginSuccess }) {
       return;
     }
 
-    if (!validarPassword(passwordLimpia)) {
-      setError(
-        "Contraseña inválida: Debe tener al menos 8 caracteres, incluyendo una mayúscula, una minúscula, un número y un carácter especial.",
-      );
-      return;
-    }
-
     setIsLoading(true);
 
     try {
-      // CONEXIÓN REAL A LA BASE DE DATOS
-      if (window.dbAPI) {
-        // Le pedimos a Mongo que busque si existe este correo
-        const usuariosEncontrados = await window.dbAPI.find("Usuario", { email: correoLimpio });
+      if (window.dbAPI && window.dbAPI.validarLogin) {
+        // Llamamos al nuevo puente seguro
+        const respuesta = await window.dbAPI.validarLogin(correoLimpio, passwordLimpia);
 
-        if (usuariosEncontrados.length === 0) {
-          setError("El correo electrónico no está registrado en el sistema.");
-          setIsLoading(false);
-          return;
-        }
-
-        const usuarioBD = usuariosEncontrados[0];
-
-        // Comparamos la contraseña exacta de la base de datos
-        if (usuarioBD.contraseña !== passwordLimpia) {
-          setError("Contraseña incorrecta. Intenta nuevamente.");
+        if (respuesta.exito) {
+          // Éxito: Guardamos la sesión y avanzamos
+          localStorage.setItem(
+            "usuarioActivo",
+            JSON.stringify({ email: respuesta.usuario.email, nombre: respuesta.usuario.nombre }),
+          );
+          onLoginSuccess(respuesta.usuario.email);
+        } else {
+          // Fallo: Mostramos el error que nos mandó el backend
+          setError(respuesta.mensaje);
           setPassword("");
-          setIsLoading(false);
-          return;
         }
-
-        // Si todo está correcto, guardamos la sesión y avanzamos
-        localStorage.setItem(
-          "usuarioActivo",
-          JSON.stringify({ email: correoLimpio, nombre: usuarioBD.nombre }),
-        );
-        onLoginSuccess(correoLimpio);
-        
       } else {
-        // Si la base de datos no está levantada, avisamos
-        setError("Error del sistema: No hay conexión con la base de datos (dbAPI no existe).");
+        setError("Error del sistema: La API de base de datos no está disponible.");
       }
     } catch (err) {
       console.error("Error al comunicarse con el servidor:", err);
