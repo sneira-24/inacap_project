@@ -51,21 +51,28 @@ function Kanban({ id_sprint, onVolver }) {
     });
   }, [id_sprint]);
 
-  const addNewTask = () => {
+  const addNewTask = async () => {
     if (newTask.trim() === "") return;
+
+    const created = await window.dbAPI.create("Tarea", {
+      sprint_id: id_sprint,
+      titulo: newTask,
+      estado: activeColumns,
+    });
 
     const updatedColumns = { ...columns };
 
     updatedColumns[activeColumns].items.push({
-      id: Date.now().toString(),
-      content: newTask,
+      id: created._id,
+      content: created.titulo,
     });
 
     setColumns(updatedColumns);
     setNewTask("");
   };
 
-  const removeTask = (columnID, taskID) => {
+  const removeTask = async (columnID, taskID) => {
+    await window.dbAPI.deleteById("Tarea", taskID);
     const updatedColumns = { ...columns };
 
     updatedColumns[columnID].items = updatedColumns[columnID].items.filter(
