@@ -18,6 +18,8 @@ function App() {
 
   const [idSprint, setIdSprint] = useState(() => {});
 
+  const [idTareaSeleccionada, setIdTareaSeleccionada] = useState(null);
+
   const irAlDashboard = (dato) => {
     if (typeof dato === "string") {
       setEmailUsuario(dato);
@@ -25,7 +27,8 @@ function App() {
     setVistaActual("dashboard");
   };
 
-  const irADetalleTarea = () => {
+  const irADetalleTarea = (id) => {
+    setIdTareaSeleccionada(id);
     setVistaActual("detalleTarea");
   };
 
@@ -56,7 +59,7 @@ function App() {
       )}
 
       {vistaActual === "detalleTarea" && (
-        <TaskDetail onVolver={irAlDashboard} />
+        <TaskDetail tareaId={idTareaSeleccionada} onVolver={irAlDashboard} />
       )}
 
       {vistaActual === "kanban" && (
