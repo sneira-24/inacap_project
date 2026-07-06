@@ -3,7 +3,7 @@ import Login from "./components/Login";
 import Dashboard from "./components/Dashboard";
 import TaskDetail from "./components/TaskDetail";
 import Kanban from "./components/Kanban";
-import MyWork from './components/MyWork';
+import MyWork from "./components/MyWork";
 
 function App() {
   const [vistaActual, setVistaActual] = useState(() => {
@@ -40,7 +40,7 @@ function App() {
     setVistaActual("kanban");
   };
 
-  const irAMyWork = () => setVistaActual('myWork');
+  const irAMyWork = () => setVistaActual("myWork");
 
   return (
     <div className="app-container">
@@ -55,9 +55,13 @@ function App() {
         />
       )}
 
-      {vistaActual === "detalleTarea" && <TaskDetail onVolver={irAlDashboard} />}
+      {vistaActual === "detalleTarea" && (
+        <TaskDetail onVolver={irAlDashboard} />
+      )}
 
-      {vistaActual === "kanban" && <Kanban id_sprint={idSprint} />}
+      {vistaActual === "kanban" && (
+        <Kanban id_sprint="6a4ae81a0e613c721fcdea64" />
+      )}
     </div>
   );
 }
