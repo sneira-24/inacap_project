@@ -1,12 +1,12 @@
 import { useEffect, useState } from "react";
 
-const ESTADOS = {
+const estados = {
   todo: "todo",
   in_progress: "in_progress",
   done: "done",
 };
 
-const COLUMN_LABELS = {
+const column_labels = {
   todo: "To Do",
   in_progress: "In Progress",
   done: "Done",
@@ -20,7 +20,7 @@ function groupTareasByEstado(tareas) {
   };
 
   tareas.forEach((t) => {
-    const estado = ESTADOS[t.estado] ? t.estado : "todo";
+    const estado = estados[t.estado] ? t.estado : "todo";
     columns[estado].items.push({
       id: t._id.toString(),
       content: t.titulo,
@@ -31,7 +31,7 @@ function groupTareasByEstado(tareas) {
   return columns;
 }
 
-function Kanban({ id_sprint }) {
+function Kanban({ id_sprint, onVolver }) {
   const [columns, setColumns] = useState({
     todo: { nombre: "To Do", items: [] },
     in_progress: { nombre: "In Progress", items: [] },
@@ -106,7 +106,7 @@ function Kanban({ id_sprint }) {
 
   if (loading) {
     return (
-      <div className="p-6 w-full min-h-screen bg-gradient-to-b from-zinc-900 to-zinc-800 flex items-center justify-center text-white">
+      <div className="p-6 w-full min-h-screen bg-linear-to-b from-zinc-900 to-zinc-800 flex items-center justify-center text-white">
         Cargando tareas...
       </div>
     );
@@ -130,11 +130,17 @@ function Kanban({ id_sprint }) {
   return (
     <>
       <div
-        className="p-6 w-full min-h-screen bg-gradient-to-b
-            from-zinc-900 to-zinc-800 flex items-center justify-center"
+        className="p-6 w-full min-h-screen bg-linear-to-b
+      from-zinc-900 to-zinc-800 flex flex-col items-center"
       >
+        <button
+          onClick={onVolver}
+          className="mb-6 self-start text-blue-400 hover:text-blue-300 font-bold flex items-center gap-2 transition-colors"
+        >
+          ← Volver al Dashboard
+        </button>
         <div className="flex items-center justify-center flex-col gap-4 w-full max-w-6xl">
-          <h1 className="text-6xl font-bold mb-8 text-transparent bg-clip-text bg-gradient-to-r from-yellow-400  via-amber-500 to-rose-400">
+          <h1 className="text-6xl font-bold mb-8 text-transparent bg-clip-text bg-linear-to-r from-yellow-400  via-amber-500 to-rose-400">
             React Kanban Board
           </h1>
           <div className="mb-8 flex w-full max-w-lg shadow-lg rounded-lg overflow-hidden">
@@ -143,7 +149,7 @@ function Kanban({ id_sprint }) {
               value={newTask}
               onChange={(e) => setNewTask(e.target.value)}
               placeholder="Agregar nueva tarea..."
-              className="flex-grow p-3 bg-zinc-700 text-white"
+              className="grow p-3 bg-zinc-700 text-white"
               onKeyDown={(e) => e.key === "Enter" && addNewTask()}
             ></input>
             <select
@@ -153,30 +159,30 @@ function Kanban({ id_sprint }) {
             >
               {Object.keys(columns).map((columnId) => (
                 <option value={columnId} key={columnId}>
-                  {COLUMN_LABELS[columnId]} ##
+                  {column_labels[columnId]}
                 </option>
               ))}
             </select>
 
             <button
               onClick={addNewTask}
-              className="px-6 bg-gradient-to-r from-yellow-600 to-amber-500 text-white font-medium hover:from-yellow-500 hover:to-amber-500 transition-all duration-200 cursor-pointer"
+              className="px-6 bg-linear-to-r from-yellow-600 to-amber-500 text-white font-medium hover:from-yellow-500 hover:to-amber-500 transition-all duration-200 cursor-pointer"
             >
               Agregar
             </button>
           </div>
-          <div className="flex gap-6 overflow-x-auto pb-6 w-full">
+          <div className="flex gap-6 overflow-x-auto pb-6 w-full justify-center">
             {Object.keys(columns).map((columnId) => (
               <div
                 key={columnId}
-                className={`flex-shrink-0 w-80 bg-zinc-800 rounded-lg shadow-x1 border-t-4 ${columnStyles[columnId].border}`}
+                className={`shrink-0 w-80 bg-zinc-800 rounded-lg shadow-x1 border-t-4 ${columnStyles[columnId].border}`}
                 onDragOver={(e) => handleDragOver(e, columnId)}
                 onDrop={(e) => handleDrop(e, columnId)}
               >
                 <div
                   className={`p-4 text-white font-bold text-xl rounded-t-md ${columnStyles[columnId].header}`}
                 >
-                  {COLUMN_LABELS[columnId]}
+                  {column_labels[columnId]}
                   <span className="ml-2 px-2 py-1 ">
                     {columns[columnId].items.length}
                   </span>
@@ -197,7 +203,7 @@ function Kanban({ id_sprint }) {
                         <span className="mr-2">{item.content}</span>
                         <button
                           onClick={() => removeTask(columnId, item.id)}
-                          className="text-zinc-400 hover: text-red-400 transition-colors duration-400 w-6 h-6 flex items-center justify-center rounded-full hover:bg-zinc-600"
+                          className="text-zinc-400 hover:text-red-400 transition-colors duration-400 w-6 h-6 flex items-center justify-center rounded-full hover:bg-zinc-600"
                         >
                           <span className="text-lg  cursor-pointer">x</span>
                         </button>
