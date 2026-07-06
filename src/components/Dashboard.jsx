@@ -93,7 +93,7 @@ const Dashboard = ({ onLogout, email, onSprintClick, onVerDetalle }) => {
         </div>
 
         <div className="bg-gray-800 rounded-2xl shadow-md p-6 border border-gray-700">
-          <MyWork onVerDetalle={onVerDetalle} />
+          <MyWork emailUsuario={email} onVerDetalle={onVerDetalle} />
         </div>
       </div>
     </div>

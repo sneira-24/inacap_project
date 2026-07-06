@@ -35,7 +35,7 @@ function Login({ onLoginSuccess }) {
       return;
     }
 
-    if (!correoLimpio.endsWith("@project.cl")) {
+    if (!email.endsWith('@project.cl')) {
       setError("Acceso denegado: Utiliza tu correo corporativo (@project.cl).");
       return;
     }
@@ -50,30 +50,37 @@ function Login({ onLoginSuccess }) {
     setIsLoading(true);
 
     try {
-      if (window.electronAPI) {
-        const respuesta = await window.electronAPI.enviarLogin({
-          email: correoLimpio,
-          password: passwordLimpia,
-        });
+      // CONEXIÓN REAL A LA BASE DE DATOS
+      if (window.dbAPI) {
+        // Le pedimos a Mongo que busque si existe este correo
+        const usuariosEncontrados = await window.dbAPI.find("Usuario", { email: correoLimpio });
 
-        if (respuesta.exito) {
-          localStorage.setItem(
-            "usuarioActivo",
-            JSON.stringify({ email: correoLimpio }),
-          );
-          onLoginSuccess(correoLimpio);
-        } else {
-          setError("Credenciales incorrectas. Intenta nuevamente.");
-          setPassword("");
+        if (usuariosEncontrados.length === 0) {
+          setError("El correo electrónico no está registrado en el sistema.");
+          setIsLoading(false);
+          return;
         }
+
+        const usuarioBD = usuariosEncontrados[0];
+
+        // Comparamos la contraseña exacta de la base de datos
+        if (usuarioBD.contraseña !== passwordLimpia) {
+          setError("Contraseña incorrecta. Intenta nuevamente.");
+          setPassword("");
+          setIsLoading(false);
+          return;
+        }
+
+        // Si todo está correcto, guardamos la sesión y avanzamos
+        localStorage.setItem(
+          "usuarioActivo",
+          JSON.stringify({ email: correoLimpio, nombre: usuarioBD.nombre }),
+        );
+        onLoginSuccess(correoLimpio);
+        
       } else {
-        setTimeout(() => {
-          localStorage.setItem(
-            "usuarioActivo",
-            JSON.stringify({ email: correoLimpio }),
-          );
-          onLoginSuccess(correoLimpio);
-        }, 1000);
+        // Si la base de datos no está levantada, avisamos
+        setError("Error del sistema: No hay conexión con la base de datos (dbAPI no existe).");
       }
     } catch (err) {
       console.error("Error al comunicarse con el servidor:", err);

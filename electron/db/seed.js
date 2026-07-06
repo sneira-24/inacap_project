@@ -34,32 +34,32 @@ async function seed() {
 
   const [lider, dev1, dev2, producto, dev3] = await Usuario.insertMany([
     {
-      email: "lider@company.com",
-      contraseña: "pass123",
+      email: "lider@project.cl",
+      contraseña: "Password123!",
       nombre: "Roberto Silva",
       rol: "lider",
     },
     {
-      email: "dev1@company.com",
-      contraseña: "pass123",
+      email: "dev1@project.cl",
+      contraseña: "Password123!",
       nombre: "Juan Pérez",
       rol: "desarrollador",
     },
     {
-      email: "dev2@company.com",
-      contraseña: "pass123",
+      email: "dev2@project.cl",
+      contraseña: "Password123!",
       nombre: "María García",
       rol: "desarrollador",
     },
     {
-      email: "producto@company.com",
-      contraseña: "pass123",
+      email: "producto@project.cl",
+      contraseña: "Password123!",
       nombre: "Carlos López",
       rol: "producto",
     },
     {
-      email: "dev3@company.com",
-      contraseña: "pass123",
+      email: "dev3@project.cl",
+      contraseña: "Password123!",
       nombre: "Ana Rodríguez",
       rol: "desarrollador",
     },
