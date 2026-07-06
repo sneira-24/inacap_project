@@ -20,7 +20,6 @@ const FechasProximas = ({ proyectos = [] }) => {
   const [feriados, setFeriados] = useState([]);
 
   useEffect(() => {
-    console.log("URL de la API:", import.meta.env.VITE_HOLIDAYS_API_URL);
     fetch(import.meta.env.VITE_HOLIDAYS_API_URL)
       .then((res) => res.json())
       .then((json) => {
