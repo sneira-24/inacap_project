@@ -72,7 +72,9 @@ const Dashboard = ({ onLogout, email, onSprintClick, onVerDetalle }) => {
                   imagen={patricioImg}
                   alt={p.nombre}
                   titulo={p.nombre}
-                  fecha={new Date(p.fecha_inicio).toLocaleDateString("es-CL")}
+                  fecha={new Date(p.fecha_inicio).toLocaleDateString("es-CL", {
+                    timeZone: "UTC",
+                  })}
                   porcentaje={calcularPorcentaje(p)}
                   sprints={p.sprints}
                   onSprintClick={onSprintClick}

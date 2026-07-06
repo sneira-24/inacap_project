@@ -26,7 +26,7 @@ const FechasProximas = ({ proyectos = [] }) => {
         const fechasConvertidas = json.data.map((feriado) =>
           convertirFecha(feriado.date),
         );
-        console.log("Feriados convertidos:", fechasConvertidas);
+
         setFeriados(fechasConvertidas);
       });
   }, []);
