@@ -13,12 +13,27 @@ const proyectosEjemplo = [
     imagen: patricioImg,
     alt: "altPatricio",
     titulo: "Titulo Patricio",
-    fecha: "12/12/2012",
+    fecha_inicio: "2012-12-12",
     porcentaje: 17,
     sprints: [
-      { id: 1, numero: "LOL1" },
-      { id: 2, numero: "LOL2" },
-      { id: 3, numero: "LOL3" },
+      {
+        id: 1,
+        numero: "LOL1",
+        fecha_ini: "2026-06-12",
+        fecha_fin: "2026-07-01",
+      },
+      {
+        id: 2,
+        numero: "LOL2",
+        fecha_ini: "2026-06-13",
+        fecha_fin: "2026-07-02",
+      },
+      {
+        id: 3,
+        numero: "LOL3",
+        fecha_ini: "2026-06-14",
+        fecha_fin: "2026-07-03",
+      },
     ],
   },
   {
@@ -26,11 +41,21 @@ const proyectosEjemplo = [
     imagen: patricioImg,
     alt: "altPatricio2",
     titulo: "Titulo Patricio 2",
-    fecha: "06/07/6969",
+    fecha_inicio: "6969-07-06",
     porcentaje: 67,
     sprints: [
-      { id: 1, numero: "XD1" },
-      { id: 2, numero: "XD2" },
+      {
+        id: 1,
+        numero: "XD1",
+        fecha_ini: "2026-06-15",
+        fecha_fin: "2026-07-04",
+      },
+      {
+        id: 2,
+        numero: "XD2",
+        fecha_ini: "2026-06-16",
+        fecha_fin: "2026-07-05",
+      },
     ],
   },
   {
@@ -38,9 +63,16 @@ const proyectosEjemplo = [
     imagen: patricioImg,
     alt: "altPatricio3",
     titulo: "Titulo Patricio 3",
-    fecha: "06/07/6969",
+    fecha_inicio: "6969-07-06",
     porcentaje: 21,
-    sprints: [{ id: 1, numero: "LMAO1" }],
+    sprints: [
+      {
+        id: 1,
+        numero: "LMAO1",
+        fecha_ini: "2026-06-17",
+        fecha_fin: "2026-07-06",
+      },
+    ],
   },
 ];
 
@@ -87,8 +119,11 @@ const Dashboard = ({ onLogout, email, onSprintClick, onVerDetalle }) => {
             ))}
           </div>
 
-          <div className="md:col-span-1 bg-gray-800 rounded-2xl shadow-md p-6 border border-gray-700">
-            <FechasProximas fechas={fechasEjemplo} />
+          <div className="md:col-span-1 bg-white rounded-2xl shadow-md p-6 border border-gray-700">
+            <h2 className="text-lg font-semibold text-black-200 mb-3">
+              Fechas Importantes
+            </h2>
+            <FechasProximas proyectos={proyectosEjemplo} />
           </div>
         </div>
 
