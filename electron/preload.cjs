@@ -14,6 +14,7 @@ contextBridge.exposeInMainWorld("dbAPI", {
     ipcRenderer.invoke("db:getSprintsByProject", proyectoId),
   getTareasBySprint: (sprintId) =>
     ipcRenderer.invoke("db:getTareasBySprint", sprintId),
+  getAllProjectsFull: () => ipcRenderer.invoke("db:getAllProjectsFull"),
   getProjectFull: (proyectoId) =>
     ipcRenderer.invoke("db:getProjectFull", proyectoId),
   getTareasByUsuario: (usuarioId) =>

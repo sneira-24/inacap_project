@@ -120,6 +120,18 @@ handle("db:getProjectFull", async (_e, proyectoId) => {
     .lean({ virtuals: true });
 });
 
+handle("db:getAllProjectsFull", async () => {
+  return Proyecto.find()
+    .populate({
+      path: "sprints",
+      populate: {
+        path: "tareas",
+        populate: { path: "asignado_a", select: "nombre email" },
+      },
+    })
+    .lean({ virtuals: true });
+});
+
 handle("db:getTareasByUsuario", async (_e, usuarioId) => {
   return Tarea.find({ asignado_a: usuarioId })
     .populate({

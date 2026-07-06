@@ -10,8 +10,6 @@ const TarjetaProyecto = ({
   onSprintClick,
   sprints = [],
 }) => {
-  let contador = 0;
-
   return (
     <div className="flex items-center gap-4 bg-white rounded-xl p-3 hover:shadow-md transition-shadow">
       <div className="flex-shrink-0">
@@ -34,8 +32,10 @@ const TarjetaProyecto = ({
             sprints.map((sprint) => (
               <button
                 className="text-xs font-medium text-blue-600 bg-blue-50 hover:bg-blue-100 border border-blue-200 rounded-full px-3 py-1 transition-colors"
-                key={sprint.id}
-                onMouseEnter={() => localStorage.setItem("idSprint", sprint.id)}
+                key={sprint._id}
+                onMouseEnter={() =>
+                  localStorage.setItem("idSprint", sprint._id)
+                }
                 onClick={onSprintClick}
               >
                 Sprint {sprint.numero}

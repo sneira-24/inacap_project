@@ -4,7 +4,8 @@ import { useState, useEffect } from "react";
 import "react-day-picker/dist/style.css";
 
 const convertirFecha = (stringFecha) => {
-  let fechaSeparada = stringFecha.split("-");
+  const soloFecha = stringFecha.split("T")[0]; // corta antes de la "T" si existe
+  let fechaSeparada = soloFecha.split("-");
   let año = Number(fechaSeparada[0]);
   let mes = Number(fechaSeparada[1]) - 1;
   let dia = Number(fechaSeparada[2]);
@@ -19,12 +20,14 @@ const FechasProximas = ({ proyectos = [] }) => {
   const [feriados, setFeriados] = useState([]);
 
   useEffect(() => {
-    fetch("https://api.boostr.cl/holidays.json")
+    console.log("URL de la API:", import.meta.env.VITE_HOLIDAYS_API_URL);
+    fetch(import.meta.env.VITE_HOLIDAYS_API_URL)
       .then((res) => res.json())
       .then((json) => {
         const fechasConvertidas = json.data.map((feriado) =>
           convertirFecha(feriado.date),
         );
+        console.log("Feriados convertidos:", fechasConvertidas);
         setFeriados(fechasConvertidas);
       });
   }, []);
