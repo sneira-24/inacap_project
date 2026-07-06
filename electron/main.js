@@ -1,67 +1,137 @@
 import { app, BrowserWindow, ipcMain } from "electron";
-import path from "node:path";
-import { fileURLToPath } from "node:url";
-import mongoose from "mongoose";
+import path from "path";
+import { fileURLToPath } from "url";
 import isDev from "electron-is-dev";
+import { connectDB } from "./db/connection.js";
+import {
+  Usuario,
+  Equipo,
+  Proyecto,
+  Sprint,
+  Tarea,
+  ComentarioTarea,
+  TimeEntry,
+  CambioTarea,
+} from "./db/models/index.js";
+import { serialize } from "./db/serialize.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-const tareaSchema = new mongoose.Schema({
-  titulo: String,
-  completada: Boolean,
-});
+let mainWindow;
 
-const Tarea = mongoose.model("Tarea", tareaSchema);
-
-async function conectarDB() {
-  try {
-    await mongoose.connect("mongodb://127.0.0.1:27017/mi_app");
-    console.log("✅ MongoDB conectado");
-  } catch (err) {
-    console.error("❌ Error conectando a MongoDB:", err);
-  }
-}
-
-let ventana;
-
-function crearVentana() {
-  ventana = new BrowserWindow({
-    width: 1000,
-    height: 700,
+function createWindow() {
+  mainWindow = new BrowserWindow({
+    width: 1200,
+    height: 800,
     webPreferences: {
-      preload: path.join(__dirname, "preload.js"),
+      preload: path.join(__dirname, "preload.cjs"),
       contextIsolation: true,
       nodeIntegration: false,
     },
   });
 
   if (isDev) {
-    ventana.loadURL("http://localhost:5173");
-    ventana.webContents.openDevTools();
+    mainWindow.loadURL("http://localhost:5173");
+    mainWindow.webContents.openDevTools();
   } else {
-    ventana.loadFile(path.join(__dirname, "../dist/index.html"));
+    mainWindow.loadFile(path.join(__dirname, "../dist/index.html"));
   }
 }
 
 app.whenReady().then(async () => {
-  await conectarDB();
-  crearVentana();
-});
+  await connectDB();
+  createWindow();
 
-ipcMain.handle("crear-tarea", async (_, titulo) => {
-  return await Tarea.create({
-    titulo,
-    completada: false,
+  app.on("activate", () => {
+    if (BrowserWindow.getAllWindows().length === 0) createWindow();
   });
 });
 
-ipcMain.handle("listar-tareas", async () => {
-  return await Tarea.find();
+app.on("window-all-closed", () => {
+  if (process.platform !== "darwin") app.quit();
 });
 
-app.on("window-all-closed", () => {
-  if (process.platform !== "darwin") {
-    app.quit();
-  }
+const models = {
+  Usuario,
+  Equipo,
+  Proyecto,
+  Sprint,
+  Tarea,
+  ComentarioTarea,
+  TimeEntry,
+  CambioTarea,
+};
+
+function handle(channel, fn) {
+  ipcMain.handle(channel, async (...args) => {
+    const result = await fn(...args);
+    return serialize(result);
+  });
+}
+
+// ---- Generic CRUD ----
+handle("db:find", async (_e, { model, filter = {}, populate = null }) => {
+  let query = models[model].find(filter);
+  if (populate) query = query.populate(populate);
+  return query.lean();
+});
+
+handle("db:findById", async (_e, { model, id, populate = null }) => {
+  let query = models[model].findById(id);
+  if (populate) query = query.populate(populate);
+  return query.lean();
+});
+
+handle("db:create", async (_e, { model, data }) => {
+  const doc = await models[model].create(data);
+  return doc.toObject();
+});
+
+handle("db:updateById", async (_e, { model, id, data }) => {
+  return models[model]
+    .findByIdAndUpdate(id, data, { returnDocument: "after" })
+    .lean();
+});
+
+handle("db:deleteById", async (_e, { model, id }) => {
+  return models[model].findByIdAndDelete(id).lean();
+});
+
+handle("db:getSprintsByProject", async (_e, proyectoId) => {
+  return Sprint.find({ proyecto_id: proyectoId }).lean();
+});
+
+handle("db:getTareasBySprint", async (_e, sprintId) => {
+  return Tarea.find({ sprint_id: sprintId })
+    .populate("asignado_a", "nombre email")
+    .lean();
+});
+
+handle("db:getProjectFull", async (_e, proyectoId) => {
+  return Proyecto.findById(proyectoId)
+    .populate({
+      path: "sprints",
+      populate: {
+        path: "tareas",
+        populate: { path: "asignado_a", select: "nombre email" },
+      },
+    })
+    .lean({ virtuals: true });
+});
+
+handle("db:getTareasByUsuario", async (_e, usuarioId) => {
+  return Tarea.find({ asignado_a: usuarioId })
+    .populate({
+      path: "sprint_id",
+      populate: { path: "proyecto_id", select: "nombre" },
+    })
+    .lean();
+});
+
+handle("db:getComentariosByTarea", async (_e, tareaId) => {
+  return ComentarioTarea.find({ tarea_id: tareaId })
+    .populate("usuario_id", "nombre")
+    .sort({ fecha: 1 })
+    .lean();
 });

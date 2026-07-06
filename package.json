@@ -8,10 +8,12 @@
   "scripts": {
     "dev": "vite",
     "start": "concurrently \"vite\" \"wait-on http://localhost:5173 && electron .\"",
-    "build": "vite build"
+    "build": "vite build",
+    "seed": "node electron/db/seed.js"
   },
   "dependencies": {
     "@tailwindcss/vite": "^4.3.2",
+    "dotenv": "^17.4.2",
     "electron-is-dev": "^3.0.1",
     "mongoose": "^9.7.3",
     "react": "^19.2.7",

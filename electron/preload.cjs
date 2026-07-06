@@ -1,0 +1,23 @@
+const { contextBridge, ipcRenderer } = require("electron");
+
+contextBridge.exposeInMainWorld("dbAPI", {
+  find: (model, filter, populate) =>
+    ipcRenderer.invoke("db:find", { model, filter, populate }),
+  findById: (model, id, populate) =>
+    ipcRenderer.invoke("db:findById", { model, id, populate }),
+  create: (model, data) => ipcRenderer.invoke("db:create", { model, data }),
+  updateById: (model, id, data) =>
+    ipcRenderer.invoke("db:updateById", { model, id, data }),
+  deleteById: (model, id) => ipcRenderer.invoke("db:deleteById", { model, id }),
+
+  getSprintsByProject: (proyectoId) =>
+    ipcRenderer.invoke("db:getSprintsByProject", proyectoId),
+  getTareasBySprint: (sprintId) =>
+    ipcRenderer.invoke("db:getTareasBySprint", sprintId),
+  getProjectFull: (proyectoId) =>
+    ipcRenderer.invoke("db:getProjectFull", proyectoId),
+  getTareasByUsuario: (usuarioId) =>
+    ipcRenderer.invoke("db:getTareasByUsuario", usuarioId),
+  getComentariosByTarea: (tareaId) =>
+    ipcRenderer.invoke("db:getComentariosByTarea", tareaId),
+});

@@ -1,27 +1,55 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+
+const ESTADOS = {
+  todo: "todo",
+  in_progress: "in_progress",
+  done: "done",
+};
+
+const COLUMN_LABELS = {
+  todo: "To Do",
+  in_progress: "In Progress",
+  done: "Done",
+};
+
+function groupTareasByEstado(tareas) {
+  const columns = {
+    todo: { nombre: "To Do", items: [] },
+    in_progress: { nombre: "In Progress", items: [] },
+    done: { nombre: "Done", items: [] },
+  };
+
+  tareas.forEach((t) => {
+    const estado = ESTADOS[t.estado] ? t.estado : "todo";
+    columns[estado].items.push({
+      id: t._id.toString(),
+      content: t.titulo,
+      raw: t, // keep full task doc around in case you need prioridad, asignado_a, etc later
+    });
+  });
+
+  return columns;
+}
 
 function Kanban({ id_sprint }) {
   const [columns, setColumns] = useState({
-    todo: {
-      nombre: "To Do",
-      items: [
-        { id: "1", content: "test" },
-        { id: "2", content: "test2" },
-      ],
-    },
-    inProgress: {
-      nombre: "In Progress",
-      items: [{ id: "3", content: "test" }],
-    },
-    done: {
-      nombre: "Done",
-      items: [{ id: "5", content: id_sprint }],
-    },
+    todo: { nombre: "To Do", items: [] },
+    in_progress: { nombre: "In Progress", items: [] },
+    done: { nombre: "Done", items: [] },
   });
-
+  const [loading, setLoading] = useState(true);
   const [newTask, setNewTask] = useState("");
   const [activeColumns, setActiveColumns] = useState("todo");
   const [draggedItem, setDraggedItem] = useState(null);
+
+  useEffect(() => {
+    if (!id_sprint) return;
+    setLoading(true);
+    window.dbAPI.getTareasBySprint(id_sprint).then((tareas) => {
+      setColumns(groupTareasByEstado(tareas));
+      setLoading(false);
+    });
+  }, [id_sprint]);
 
   const addNewTask = () => {
     if (newTask.trim() === "") return;
@@ -55,14 +83,14 @@ function Kanban({ id_sprint }) {
     e.preventDefault();
   };
 
-  const handleDrop = (e, columnID) => {
+  const handleDrop = async (e, columnID) => {
     e.preventDefault();
-
     if (!draggedItem) return;
 
     const { columnID: sourceColumnID, item } = draggedItem;
-
     if (sourceColumnID === columnID) return;
+
+    await window.dbAPI.updateById("Tarea", item.id, { estado: columnID });
 
     const updatedColumns = { ...columns };
 
@@ -76,12 +104,20 @@ function Kanban({ id_sprint }) {
     setDraggedItem(null);
   };
 
+  if (loading) {
+    return (
+      <div className="p-6 w-full min-h-screen bg-gradient-to-b from-zinc-900 to-zinc-800 flex items-center justify-center text-white">
+        Cargando tareas...
+      </div>
+    );
+  }
+
   const columnStyles = {
     todo: {
       header: "bg-gradient-to-r from-blue-600 to-blue-400",
       border: "border-blue-400",
     },
-    inProgress: {
+    in_progress: {
       header: "bg-gradient-to-r from-yellow-600 to-yellow-400",
       border: "border-yellow-400",
     },
@@ -117,7 +153,7 @@ function Kanban({ id_sprint }) {
             >
               {Object.keys(columns).map((columnId) => (
                 <option value={columnId} key={columnId}>
-                  {columns[columnId].nombre}
+                  {COLUMN_LABELS[columnId]} ##
                 </option>
               ))}
             </select>
@@ -133,14 +169,14 @@ function Kanban({ id_sprint }) {
             {Object.keys(columns).map((columnId) => (
               <div
                 key={columnId}
-                className={`flex-shrink-0 w-80 bg-zinc-800 rounded-lg shadow-x1 border-t-4 ${columnStyles[columnId.border]}`}
+                className={`flex-shrink-0 w-80 bg-zinc-800 rounded-lg shadow-x1 border-t-4 ${columnStyles[columnId].border}`}
                 onDragOver={(e) => handleDragOver(e, columnId)}
                 onDrop={(e) => handleDrop(e, columnId)}
               >
                 <div
                   className={`p-4 text-white font-bold text-xl rounded-t-md ${columnStyles[columnId].header}`}
                 >
-                  {columns[columnId].nombre}
+                  {COLUMN_LABELS[columnId]}
                   <span className="ml-2 px-2 py-1 ">
                     {columns[columnId].items.length}
                   </span>
