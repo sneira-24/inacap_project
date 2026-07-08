@@ -34,11 +34,31 @@ function MyWork({ emailUsuario, onVerDetalle }) {
     cargarTareasBD();
   }, [emailUsuario]);
 
+  // Limpiar tareas viejas o terminadas
+  const hoy = new Date();
+  hoy.setHours(0, 0, 0, 0); // Normalizamos a las 00:00 para comparar solo el día
+
+  const tareasActivas = misTareas.filter((tarea) => {
+    // Filtrar tareas que ya están listas
+    const estado = tarea.estado?.toLowerCase();
+    if (estado === 'done' || estado === 'completado') return false;
+
+    // Filtrar tareas de Sprints cuya fecha de fin ya pasó
+    if (tarea.sprint_id && tarea.sprint_id.fecha_fin) {
+      const fechaFinSprint = new Date(tarea.sprint_id.fecha_fin);
+      fechaFinSprint.setHours(0, 0, 0, 0);
+      
+      if (fechaFinSprint < hoy) return false; // Si venció ayer o antes, no se muestra
+    }
+
+    return true;
+  });
+
   // Agrupacion
   const pesosPrioridad = { "crítica": 1, "critica": 1, "alta": 2, "media": 3, "baja": 4 };
 
-  // Agrupamos las tareas por el ID del Sprint
-  const tareasPorSprint = misTareas.reduce((grupos, tarea) => {
+  // Agrupamos tareasActivas
+  const tareasPorSprint = tareasActivas.reduce((grupos, tarea) => {
     const sprintId = tarea.sprint_id?._id || "backlog"; // Si no tiene sprint, va al backlog
     
     if (!grupos[sprintId]) {
@@ -61,7 +81,7 @@ function MyWork({ emailUsuario, onVerDetalle }) {
     return grupo;
   });
 
-  // Función formatear fechas (DD/MM/YYYY)
+  // Función formatear fechas a un formato amigable (DD/MM/YYYY)
   const formatearFecha = (fechaISO) => {
     if (!fechaISO) return "--/--/----";
     return new Date(fechaISO).toLocaleDateString("es-CL");
@@ -82,13 +102,13 @@ function MyWork({ emailUsuario, onVerDetalle }) {
     switch (prioridad?.toLowerCase()) {
       case "crítica": 
       case "critica": 
-        return "text-red-500 font-bold"; // Rojo
+        return "text-red-500 font-bold";
       case "alta": 
-        return "text-orange-500 font-semibold"; // Naranja
+        return "text-orange-500 font-semibold";
       case "media": 
-        return "text-yellow-500 font-medium"; // Amarillo
+        return "text-yellow-500 font-medium";
       case "baja": 
-        return "text-gray-400"; // Gris
+        return "text-gray-400";
       default: 
         return "text-gray-500";
     }
@@ -111,7 +131,7 @@ function MyWork({ emailUsuario, onVerDetalle }) {
       <div className="space-y-8 w-full">
         {sprintsAgrupados.length === 0 ? (
           <div className="text-gray-500 bg-gray-900/50 p-6 rounded-lg border border-gray-700 text-center">
-            No tienes tareas asignadas por el momento.
+            No tienes tareas pendientes ni sprints activos asignados por el momento.
           </div>
         ) : (
           sprintsAgrupados.map((grupo, index) => (
