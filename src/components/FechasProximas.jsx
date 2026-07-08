@@ -1,6 +1,5 @@
-import React from "react";
 import { DayPicker } from "react-day-picker";
-import { useState, useEffect } from "react";
+import { React, useState, useEffect } from "react";
 import "react-day-picker/dist/style.css";
 
 const convertirFecha = (stringFecha) => {
@@ -99,7 +98,7 @@ const FechasProximas = ({ proyectos = [] }) => {
         />
       </div>
 
-      <div className="min-w-[180px] flex-1 pt-2">
+      <div className="min-w-45 flex-1 pt-2">
         {diaSeleccionado ? (
           <div>
             <p className="text-sm text-gray-500 mb-1">
