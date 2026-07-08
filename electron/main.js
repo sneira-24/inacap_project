@@ -78,6 +78,10 @@ handle("db:find", async (_e, { model, filter = {}, populate = null }) => {
   return query.lean();
 });
 
+handle("db:findOne", async (_e, { model, filter }) => {
+  return models[model].findOne(filter).lean();
+});
+
 handle("db:findById", async (_e, { model, id, populate = null }) => {
   let query = models[model].findById(id);
   if (populate) query = query.populate(populate);
@@ -153,16 +157,20 @@ ipcMain.handle("db:validarLogin", async (_e, { email, password }) => {
   try {
     // Buscar al usuario
     const user = await models.Usuario.findOne({ email }).lean();
-    if (!user) return { exito: false, mensaje: "El correo electrónico no está registrado." };
+    if (!user)
+      return {
+        exito: false,
+        mensaje: "El correo electrónico no está registrado.",
+      };
 
     // Comparar la contraseña ingresada con el hash de la BD
     const contrasenaValida = await bcrypt.compare(password, user.contraseña);
-    if (!contrasenaValida) return { exito: false, mensaje: "Contraseña incorrecta." };
+    if (!contrasenaValida)
+      return { exito: false, mensaje: "Contraseña incorrecta." };
 
     // Quitar la contraseña del objeto antes de enviarlo a React (por seguridad)
     const { contraseña, ...usuarioSeguro } = user;
     return { exito: true, usuario: usuarioSeguro };
-
   } catch (error) {
     console.error("Error en login:", error);
     return { exito: false, mensaje: "Error interno del servidor." };
@@ -174,19 +182,25 @@ ipcMain.handle("db:updateTarea", async (_e, { id, nuevaDescripcion }) => {
     const tareaActualizada = await models.Tarea.findByIdAndUpdate(
       id,
       { descripcion: nuevaDescripcion },
-      { 
+      {
         returnDocument: "after",
-        runValidators: true
-      }
+        runValidators: true,
+      },
     ).lean();
 
     if (!tareaActualizada) {
-      return { exito: false, mensaje: "La tarea no existe en la base de datos." };
+      return {
+        exito: false,
+        mensaje: "La tarea no existe en la base de datos.",
+      };
     }
 
     return { exito: true, tarea: serialize(tareaActualizada) };
   } catch (error) {
     console.error("Error al actualizar la tarea:", error);
-    return { exito: false, mensaje: "Error interno al guardar en la base de datos." };
+    return {
+      exito: false,
+      mensaje: "Error interno al guardar en la base de datos.",
+    };
   }
 });

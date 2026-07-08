@@ -63,7 +63,11 @@ function App() {
       )}
 
       {vistaActual === "kanban" && (
-        <Kanban id_sprint={idSprint} onVolver={irAlDashboard} />
+        <Kanban
+          id_sprint={idSprint}
+          onVolver={irAlDashboard}
+          email={emailUsuario}
+        />
       )}
     </div>
   );

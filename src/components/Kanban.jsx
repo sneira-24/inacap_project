@@ -24,14 +24,17 @@ function groupTareasByEstado(tareas) {
     columns[estado].items.push({
       id: t._id.toString(),
       content: t.titulo,
-      raw: t, // keep full task doc around in case you need prioridad, asignado_a, etc later
+      story_points: t.story_points ?? 0,
     });
   });
 
   return columns;
 }
 
-function Kanban({ id_sprint, onVolver }) {
+const getColumnPoints = (items) =>
+  items.reduce((sum, item) => sum + (item.story_points || 0), 0);
+
+function Kanban({ id_sprint, onVolver, email }) {
   const [columns, setColumns] = useState({
     todo: { nombre: "To Do", items: [] },
     in_progress: { nombre: "In Progress", items: [] },
@@ -39,6 +42,8 @@ function Kanban({ id_sprint, onVolver }) {
   });
   const [loading, setLoading] = useState(true);
   const [newTask, setNewTask] = useState("");
+  const [newPrioridad, setNewPrioridad] = useState("media");
+  const [newStoryPoints, setNewStoryPoints] = useState("");
   const [activeColumns, setActiveColumns] = useState("todo");
   const [draggedItem, setDraggedItem] = useState(null);
 
@@ -54,10 +59,17 @@ function Kanban({ id_sprint, onVolver }) {
   const addNewTask = async () => {
     if (newTask.trim() === "") return;
 
+    const usuario = await window.dbAPI.findOne("Usuario", { email: email });
+    const id_usuario = usuario._id;
+
     const created = await window.dbAPI.create("Tarea", {
       sprint_id: id_sprint,
       titulo: newTask,
+      descripcion: "",
+      asignado_a: id_usuario,
       estado: activeColumns,
+      prioridad: newPrioridad,
+      story_points: newStoryPoints ? Number(newStoryPoints) : 0,
     });
 
     const updatedColumns = { ...columns };
@@ -65,10 +77,13 @@ function Kanban({ id_sprint, onVolver }) {
     updatedColumns[activeColumns].items.push({
       id: created._id,
       content: created.titulo,
+      story_points: created.story_points,
     });
 
     setColumns(updatedColumns);
     setNewTask("");
+    setNewPrioridad("media");
+    setNewStoryPoints("");
   };
 
   const removeTask = async (columnID, taskID) => {
@@ -150,30 +165,40 @@ function Kanban({ id_sprint, onVolver }) {
           <h1 className="text-6xl font-bold mb-8 text-transparent bg-clip-text bg-linear-to-r from-yellow-400  via-amber-500 to-rose-400">
             React Kanban Board
           </h1>
-          <div className="mb-8 flex w-full max-w-lg shadow-lg rounded-lg overflow-hidden">
+          <div className="mb-8 flex w-full max-w-2xl shadow-lg rounded-lg overflow-hidden">
             <input
               type="text"
               value={newTask}
               onChange={(e) => setNewTask(e.target.value)}
               placeholder="Agregar nueva tarea..."
-              className="grow p-3 bg-zinc-700 text-white"
+              className="flex-grow min-w-0 p-3 bg-zinc-700 text-white placeholder-zinc-400 focus:outline-none"
               onKeyDown={(e) => e.key === "Enter" && addNewTask()}
-            ></input>
+            />
             <select
-              value={activeColumns}
-              onChange={(e) => setActiveColumns(e.target.value)}
-              className="p-3 bg-zinc-700 text-white border-0 border-l border-zinc-600"
+              value={newPrioridad}
+              onChange={(e) => setNewPrioridad(e.target.value)}
+              className="p-3 bg-zinc-700 text-white border-l border-zinc-600 focus:outline-none"
             >
-              {Object.keys(columns).map((columnId) => (
-                <option value={columnId} key={columnId}>
-                  {column_labels[columnId]}
+              <option value="baja">Baja</option>
+              <option value="media">Media</option>
+              <option value="alta">Alta</option>
+              <option value="critica">Crítica</option>
+            </select>
+            <select
+              value={newStoryPoints}
+              onChange={(e) => setNewStoryPoints(e.target.value)}
+              className="p-3 bg-zinc-700 text-white border-l border-zinc-600 focus:outline-none"
+            >
+              <option value="">Story Pts</option>
+              {Array.from({ length: 11 }, (_, i) => (
+                <option key={i} value={i}>
+                  {i}
                 </option>
               ))}
             </select>
-
             <button
               onClick={addNewTask}
-              className="px-6 bg-linear-to-r from-yellow-600 to-amber-500 text-white font-medium hover:from-yellow-500 hover:to-amber-500 transition-all duration-200 cursor-pointer"
+              className="px-6 bg-gradient-to-r from-yellow-600 to-amber-500 text-white font-medium hover:from-yellow-500 hover:to-amber-500 transition-all duration-200 cursor-pointer whitespace-nowrap"
             >
               Agregar
             </button>
@@ -187,12 +212,21 @@ function Kanban({ id_sprint, onVolver }) {
                 onDrop={(e) => handleDrop(e, columnId)}
               >
                 <div
-                  className={`p-4 text-white font-bold text-xl rounded-t-md ${columnStyles[columnId].header}`}
+                  className={`p-4 rounded-t-md ${columnStyles[columnId].header}`}
                 >
-                  {column_labels[columnId]}
-                  <span className="ml-2 px-2 py-1 ">
-                    {columns[columnId].items.length}
-                  </span>
+                  <div className="flex items-center justify-between">
+                    <h3 className="text-white font-bold text-xl">
+                      {column_labels[columnId]}
+                    </h3>
+                    <div className="flex items-center gap-2">
+                      <span className="bg-black/20 text-white text-xs font-semibold px-2 py-1 rounded-full">
+                        {columns[columnId].items.length} tareas
+                      </span>
+                      <span className="bg-black/20 text-white text-xs font-semibold px-2 py-1 rounded-full">
+                        {getColumnPoints(columns[columnId].items)} pts
+                      </span>
+                    </div>
+                  </div>
                 </div>
                 <div className="p-3 min-h-64">
                   {columns[columnId].items.length === 0 ? (
