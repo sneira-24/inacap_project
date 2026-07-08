@@ -58,6 +58,16 @@ function MyWork({ emailUsuario, onVerDetalle }) {
     return <div className="p-8 text-gray-400 flex justify-center">Conectando con la base de datos...</div>;
   }
 
+  const getColorPrioridad = (prioridad) => {
+    switch (prioridad?.toLowerCase()) {
+      case "crítica": return "text-red-500 font-bold";
+      case "alta": return "text-orange-500 font-semibold";
+      case "media": return "text-yellow-500 font-medium";
+      case "baja": return "text-gray-400";
+      default: return "text-gray-500";
+    }
+  };
+
   return (
     <div className="font-sans text-gray-200 w-full">
       <div className="mb-6 border-b border-gray-700 pb-4">
@@ -91,9 +101,9 @@ function MyWork({ emailUsuario, onVerDetalle }) {
                 <h3 className="text-lg font-semibold text-white m-0">
                   {tarea.titulo}
                 </h3>
-                <p className="text-sm text-gray-400 mt-1">
-                  Prioridad: <span className="font-medium text-gray-300 uppercase">{tarea.prioridad}</span>
-                </p>
+                <span className={`uppercase text-sm ${getColorPrioridad(tarea.prioridad)}`}>
+                  Prioridad: {tarea.prioridad}
+                </span>
               </div>
 
               <div>
