@@ -7,42 +7,67 @@ function MyWork({ emailUsuario, onVerDetalle }) {
   // Efecto que se ejecuta al cargar la pantalla
   useEffect(() => {
     async function cargarTareasBD() {
-      // Si por algún motivo no existe la API (ej. corriendo en navegador normal), salimos
       if (!window.dbAPI) {
-        console.error("El puente IPC (dbAPI) no está conectado.");
+        console.error("El puente IPC no está conectado.");
         setCargando(false);
         return;
       }
 
       try {
-        // 1. Buscamos el usuario completo en la BD usando el email de tu estado App.jsx
         const usuarios = await window.dbAPI.find("Usuario", { email: emailUsuario });
-        
         if (usuarios.length === 0) {
-          console.warn("No se encontró ningún usuario con ese correo en MongoDB.");
           setCargando(false);
           return;
         }
         
         const miUsuario = usuarios[0];
-
-        // 2. Usamos la función nativa de Sebastián para traer las tareas del usuario
         const tareasDB = await window.dbAPI.getTareasByUsuario(miUsuario._id);
         
-        // Guardamos los datos reales en el estado
-        setMisTareas(tareasDB);
-
+        setMisTareas(tareasDB || []);
       } catch (error) {
-        console.error("Error de conexión con la BD:", error);
+        console.error("Error de conexión:", error);
       } finally {
-        setCargando(false); // Apagamos el mensaje de carga
+        setCargando(false);
       }
     }
 
     cargarTareasBD();
   }, [emailUsuario]);
 
-  // Función de colores adaptada a los estados reales de la BD ("todo", "in_progress", etc.)
+  // Agrupacion
+  const pesosPrioridad = { "crítica": 1, "critica": 1, "alta": 2, "media": 3, "baja": 4 };
+
+  // Agrupamos las tareas por el ID del Sprint
+  const tareasPorSprint = misTareas.reduce((grupos, tarea) => {
+    const sprintId = tarea.sprint_id?._id || "backlog"; // Si no tiene sprint, va al backlog
+    
+    if (!grupos[sprintId]) {
+      grupos[sprintId] = {
+        sprint: tarea.sprint_id,
+        tareas: []
+      };
+    }
+    grupos[sprintId].tareas.push(tarea);
+    return grupos;
+  }, {});
+
+  // Convertimos el objeto en un arreglo y ordenamos las tareas internamente por prioridad
+  const sprintsAgrupados = Object.values(tareasPorSprint).map(grupo => {
+    grupo.tareas.sort((a, b) => {
+      const pesoA = pesosPrioridad[a.prioridad?.toLowerCase()] || 5;
+      const pesoB = pesosPrioridad[b.prioridad?.toLowerCase()] || 5;
+      return pesoA - pesoB; // Prioridad más crítica arriba
+    });
+    return grupo;
+  });
+
+  // Función formatear fechas a un formato amigable (DD/MM/YYYY)
+  const formatearFecha = (fechaISO) => {
+    if (!fechaISO) return "--/--/----";
+    return new Date(fechaISO).toLocaleDateString("es-CL");
+  };
+
+  // Funcion colores
   const colorEstado = (estado) => {
     switch(estado?.toLowerCase()) {
       case 'done': 
@@ -53,67 +78,97 @@ function MyWork({ emailUsuario, onVerDetalle }) {
     }
   };
 
-  // Pantalla de carga mientras React y Mongo conversan
+  const getColorPrioridad = (prioridad) => {
+    switch (prioridad?.toLowerCase()) {
+      case "crítica": 
+      case "critica": 
+        return "text-red-500 font-bold"; // Rojo
+      case "alta": 
+        return "text-orange-500 font-semibold"; // Naranja
+      case "media": 
+        return "text-yellow-500 font-medium"; // Amarillo
+      case "baja": 
+        return "text-gray-400"; // Gris
+      default: 
+        return "text-gray-500";
+    }
+  };
+
   if (cargando) {
     return <div className="p-8 text-gray-400 flex justify-center">Conectando con la base de datos...</div>;
   }
 
-  const getColorPrioridad = (prioridad) => {
-    switch (prioridad?.toLowerCase()) {
-      case "crítica": return "text-red-500 font-bold";
-      case "alta": return "text-orange-500 font-semibold";
-      case "media": return "text-yellow-500 font-medium";
-      case "baja": return "text-gray-400";
-      default: return "text-gray-500";
-    }
-  };
-
   return (
     <div className="font-sans text-gray-200 w-full">
-      <div className="mb-6 border-b border-gray-700 pb-4">
+      {/* Cabecera */}
+      <div className="mb-8 border-b border-gray-700 pb-4">
         <h2 className="text-2xl font-bold text-white m-0">Mi Trabajo</h2>
         <p className="text-gray-400 mt-2 text-sm">
-          Revisa las tareas que tienes asignadas en la base de datos.
+          Tus tareas agrupadas por Sprints y ordenadas por prioridad.
         </p>
       </div>
 
-      <div className="grid gap-4 w-full">
-        {misTareas.length === 0 ? (
+      <div className="space-y-8 w-full">
+        {sprintsAgrupados.length === 0 ? (
           <div className="text-gray-500 bg-gray-900/50 p-6 rounded-lg border border-gray-700 text-center">
             No tienes tareas asignadas por el momento.
           </div>
         ) : (
-          misTareas.map((tarea) => (
-            <div 
-              key={tarea._id} // Ahora usamos el _id de Mongo
-              className="bg-gray-900/50 border border-gray-700 rounded-lg p-5 hover:bg-gray-800 transition-colors flex flex-col md:flex-row md:items-center justify-between gap-4"
-            >
-              <div className="flex-1">
-                <div className="flex items-center gap-3 mb-2">
-                  <span className="text-xs font-bold text-purple-400 uppercase tracking-wider">
-                    {/* Leemos el nombre del proyecto que Sebastián nos mandó popularizado */}
-                    {tarea.sprint_id?.proyecto_id?.nombre || "Proyecto sin nombre"}
-                  </span>
-                  <span className={`px-2 py-0.5 rounded-full text-xs font-semibold ${colorEstado(tarea.estado)}`}>
-                    {tarea.estado || 'todo'}
-                  </span>
-                </div>
-                <h3 className="text-lg font-semibold text-white m-0">
-                  {tarea.titulo}
+          sprintsAgrupados.map((grupo, index) => (
+            <div key={index} className="bg-gray-800/30 border border-gray-700 rounded-xl p-6">
+              
+              {/* Título del Sprint con Rango de Fechas */}
+              <div className="mb-4 pb-3 border-b border-gray-700/50 flex flex-col md:flex-row md:items-center justify-between">
+                <h3 className="text-xl font-bold text-white flex items-center gap-2">
+                   {grupo.sprint?.nombre || "Backlog / Sin Sprint"}
                 </h3>
-                <span className={`uppercase text-sm ${getColorPrioridad(tarea.prioridad)}`}>
-                  Prioridad: {tarea.prioridad}
-                </span>
+                {grupo.sprint && (
+                  <span className="text-sm font-medium text-blue-400 bg-blue-900/20 px-3 py-1 rounded-full mt-2 md:mt-0">
+                    {formatearFecha(grupo.sprint.fecha_inicio)} — {formatearFecha(grupo.sprint.fecha_fin)}
+                  </span>
+                )}
               </div>
 
-              <div>
-                <button 
-                  onClick={() => onVerDetalle(tarea._id)} // Enviamos el _id de Mongo al TaskDetail
-                  className="w-full md:w-auto bg-blue-600 hover:bg-blue-500 text-white font-medium py-2 px-4 rounded transition-colors shadow-sm"
-                >
-                  Ver Detalle
-                </button>
+              {/* Lista de Tareas de este Sprint */}
+              <div className="grid gap-3">
+                {grupo.tareas.map((tarea) => (
+                  <div 
+                    key={tarea._id}
+                    className="bg-gray-900/80 border border-gray-700 rounded-lg p-4 hover:bg-gray-800 transition-colors flex flex-col md:flex-row md:items-center justify-between gap-4"
+                  >
+                    <div className="flex-1">
+                      <div className="flex items-center gap-3 mb-1">
+                        <span className="text-xs font-bold text-purple-400 uppercase tracking-wider">
+                          {tarea.sprint_id?.proyecto_id?.nombre || "Proyecto Activo"}
+                        </span>
+                        <span className={`px-2 py-0.5 rounded-full text-[10px] font-semibold ${colorEstado(tarea.estado)} uppercase`}>
+                          {tarea.estado || 'todo'}
+                        </span>
+                      </div>
+                      
+                      <h4 className="text-lg font-semibold text-white m-0">
+                        {tarea.titulo}
+                      </h4>
+                      
+                      <div className="mt-1">
+                        <span className={`uppercase text-xs tracking-wide ${getColorPrioridad(tarea.prioridad)}`}>
+                          Prioridad: {tarea.prioridad || "Media"}
+                        </span>
+                      </div>
+                    </div>
+
+                    <div>
+                      <button 
+                        onClick={() => onVerDetalle(tarea._id)}
+                        className="w-full md:w-auto bg-blue-600 hover:bg-blue-500 text-white font-medium py-1.5 px-4 rounded text-sm transition-colors shadow-sm"
+                      >
+                        Ver Detalle
+                      </button>
+                    </div>
+                  </div>
+                ))}
               </div>
+
             </div>
           ))
         )}

@@ -15,6 +15,7 @@ contextBridge.exposeInMainWorld("dbAPI", {
     ipcRenderer.invoke("db:validarLogin", { email, password }),
   updateTarea: (id, nuevaDescripcion) =>
     ipcRenderer.invoke("db:updateTarea", { id, nuevaDescripcion }),
+  getTareasPorRangoSprints: (fechaInicio, fechaFin) => ipcRenderer.invoke("db:getTareasPorRangoSprints", { fechaInicio, fechaFin }),
 
   getSprintsByProject: (proyectoId) =>
     ipcRenderer.invoke("db:getSprintsByProject", proyectoId),

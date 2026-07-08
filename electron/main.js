@@ -204,3 +204,38 @@ ipcMain.handle("db:updateTarea", async (_e, { id, nuevaDescripcion }) => {
     };
   }
 });
+
+// Obtener y Ordenar Tareas por Rango de Sprints
+handle("db:getTareasPorRangoSprints", async (_e, { fechaInicio, fechaFin }) => {
+  try {
+    // Buscar los sprints que caigan dentro del rango de fechas
+    const sprints = await models.Sprint.find({
+      fecha_inicio: { $gte: new Date(fechaInicio) },
+      fecha_fin: { $lte: new Date(fechaFin) }
+    }).lean();
+
+    if (sprints.length === 0) return [];
+
+    const sprintIds = sprints.map(s => s._id);
+
+    // Traer las tareas vinculadas a esos sprints
+    const tareas = await models.Tarea.find({ sprint_id: { $in: sprintIds } })
+      .populate("sprint_id", "nombre fecha_inicio fecha_fin")
+      .populate("asignado_a", "nombre email")
+      .lean();
+
+    // Ordenar por prioridad personalizada: Crítica -> Alta -> Media -> Baja
+    const pesosPrioridad = { "crítica": 1, "alta": 2, "media": 3, "baja": 4 };
+    
+    tareas.sort((a, b) => {
+      const pesoA = pesosPrioridad[a.prioridad?.toLowerCase()] || 5;
+      const pesoB = pesosPrioridad[b.prioridad?.toLowerCase()] || 5;
+      return pesoA - pesoB; // Menor peso va primero (Crítica primero)
+    });
+
+    return tareas;
+  } catch (error) {
+    console.error("Error al filtrar tareas por rango:", error);
+    return [];
+  }
+});
