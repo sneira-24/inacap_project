@@ -119,6 +119,20 @@ const FechasProximas = ({ proyectos = [] }) => {
           </p>
         )}
       </div>
+      <div className="flex flex-wrap gap-4 pt-3 mt-2 border-t border-gray-100 text-xs text-gray-600">
+        <div className="flex items-center gap-1.5">
+          <span className="w-2.5 h-2.5 rounded-full bg-blue-500"></span>
+          Fin de proyecto
+        </div>
+        <div className="flex items-center gap-1.5">
+          <span className="w-2.5 h-2.5 rounded-full bg-red-500"></span>
+          Entrega próxima (≤ 7 días)
+        </div>
+        <div className="flex items-center gap-1.5">
+          <span className="w-2.5 h-2.5 rounded-full bg-orange-400"></span>
+          Feriado
+        </div>
+      </div>
     </div>
   );
 };
