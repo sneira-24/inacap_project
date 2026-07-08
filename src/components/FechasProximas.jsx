@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import "react-day-picker/dist/style.css";
 
 const convertirFecha = (stringFecha) => {
-  const soloFecha = stringFecha.split("T")[0]; // corta antes de la "T" si existe
+  const soloFecha = stringFecha.split("T")[0];
   let fechaSeparada = soloFecha.split("-");
   let año = Number(fechaSeparada[0]);
   let mes = Number(fechaSeparada[1]) - 1;
@@ -12,37 +12,109 @@ const convertirFecha = (stringFecha) => {
   return new Date(año, mes, dia);
 };
 
-const FechasProximas = ({ proyectos = [] }) => {
-  const fechasFinSprint = proyectos
-    .flatMap((proyecto) => proyecto.sprints.map((sprint) => sprint.fecha_fin))
-    .map((fechaStr) => convertirFecha(fechaStr));
+const diasHastaFecha = (fecha) => {
+  const hoy = new Date();
+  hoy.setHours(0, 0, 0, 0);
+  const diferenciaMs = fecha.getTime() - hoy.getTime();
+  return diferenciaMs / (1000 * 60 * 60 * 24);
+};
 
-  const [feriados, setFeriados] = useState([]);
+// Compara si dos fechas son "el mismo día", ignorando la hora
+const esMismoDia = (fechaA, fechaB) => {
+  return fechaA.toDateString() === fechaB.toDateString();
+};
+
+const FechasProximas = ({ proyectos = [] }) => {
+  // Ahora guardamos fecha + nombre juntos, no solo la fecha suelta
+  const finesProyecto = proyectos
+    .filter((proyecto) => proyecto.fecha_fin)
+    .map((proyecto) => ({
+      fecha: convertirFecha(proyecto.fecha_fin),
+      nombre: proyecto.nombre,
+    }));
+
+  const fechasFinProyecto = finesProyecto.map((item) => item.fecha);
+
+  const fechasUrgentes = finesProyecto
+    .filter((item) => {
+      const dias = diasHastaFecha(item.fecha);
+      return dias >= 0 && dias <= 7;
+    })
+    .map((item) => item.fecha);
+
+  const [feriadosInfo, setFeriadosInfo] = useState([]); // [{ fecha, nombre }]
+  const [diaSeleccionado, setDiaSeleccionado] = useState(null);
 
   useEffect(() => {
     fetch(import.meta.env.VITE_HOLIDAYS_API_URL)
       .then((res) => res.json())
       .then((json) => {
-        const fechasConvertidas = json.data.map((feriado) =>
-          convertirFecha(feriado.date),
-        );
-
-        setFeriados(fechasConvertidas);
+        const convertidos = json.data.map((feriado) => ({
+          fecha: convertirFecha(feriado.date),
+          nombre: feriado.title,
+        }));
+        setFeriadosInfo(convertidos);
       });
   }, []);
 
+  const fechasFeriados = feriadosInfo.map((item) => item.fecha);
+
+  // Arma el texto descriptivo del día seleccionado
+  const obtenerDescripcion = () => {
+    if (!diaSeleccionado) return null;
+
+    const feriado = feriadosInfo.find((item) =>
+      esMismoDia(item.fecha, diaSeleccionado),
+    );
+    if (feriado) return `Feriado: ${feriado.nombre}`;
+
+    const proyecto = finesProyecto.find((item) =>
+      esMismoDia(item.fecha, diaSeleccionado),
+    );
+    if (proyecto) return `Fecha esperada: ${proyecto.nombre}`;
+
+    return "Sin eventos para este día";
+  };
+
   return (
-    <DayPicker
-      mode="single"
-      modifiers={{
-        finSprint: fechasFinSprint,
-        feriado: feriados,
-      }}
-      modifiersClassNames={{
-        finSprint: "!bg-blue-500 !text-white !rounded-full",
-        feriado: "!bg-red-500 !text-white !rounded-full",
-      }}
-    />
+    <div className="flex gap-6">
+      <DayPicker
+        mode="single"
+        selected={diaSeleccionado}
+        onSelect={setDiaSeleccionado}
+        modifiers={{
+          finProyecto: fechasFinProyecto,
+          urgente: fechasUrgentes,
+          feriado: fechasFeriados,
+        }}
+        modifiersClassNames={{
+          finProyecto: "!bg-blue-500 !text-white !rounded-full",
+          urgente: "!bg-red-500 !text-white !rounded-full",
+          feriado: "!bg-orange-400 !text-white !rounded-full",
+        }}
+      />
+
+      <div className="flex-1 pt-2">
+        {diaSeleccionado ? (
+          <div>
+            <p className="text-sm text-gray-500 mb-1">
+              {diaSeleccionado.toLocaleDateString("es-CL", {
+                day: "2-digit",
+                month: "long",
+                year: "numeric",
+              })}
+            </p>
+            <p className="text-base font-semibold text-gray-800">
+              {obtenerDescripcion()}
+            </p>
+          </div>
+        ) : (
+          <p className="text-sm text-gray-400">
+            Selecciona un día para ver el detalle
+          </p>
+        )}
+      </div>
+    </div>
   );
 };
 
