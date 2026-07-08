@@ -153,7 +153,7 @@ function MyWork({ emailUsuario, onVerDetalle }) {
         ) : (
           sprintsAgrupados.map((grupo, index) => (
             <div
-              key={index}
+              key={grupo.sprint?._id || "backlog"}
               className="bg-gray-800/30 border border-gray-700 rounded-xl p-6"
             >
               {/* Título del Sprint con Rango de Fechas usando los campos reales de la BD */}

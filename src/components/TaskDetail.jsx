@@ -405,9 +405,9 @@ function TaskDetail({ tareaId, onVolver }) {
               </p>
             ) : (
               <div className="space-y-3 max-h-62.5 overflow-y-auto pr-2">
-                {historialCambios.map((cambio, index) => (
+                {historialCambios.map((cambio) => (
                   <div
-                    key={index}
+                    key={cambio._id}
                     className="flex flex-col bg-gray-900 p-3 rounded-lg border border-gray-700"
                   >
                     <div className="flex justify-between items-center mb-1">

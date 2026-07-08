@@ -8,14 +8,8 @@ function Login({ onLoginSuccess }) {
   const [mostrarPassword, setMostrarPassword] = useState(false);
 
   const validarEmail = (correo) => {
-    const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    const regex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
     return regex.test(correo);
-  };
-
-  const validarPassword = (password) => {
-    // Exige: 1 minúscula, 1 mayúscula, 1 número, 1 carácter especial, mínimo 8 de largo
-    const regex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,}$/;
-    return regex.test(password);
   };
 
   const handleLogin = async (e) => {
@@ -43,7 +37,7 @@ function Login({ onLoginSuccess }) {
     setIsLoading(true);
 
     try {
-      if (window.dbAPI && window.dbAPI.validarLogin) {
+      if (window.dbAPI?.validarLogin) {
         // Llamamos al nuevo puente seguro
         const respuesta = await window.dbAPI.validarLogin(correoLimpio, passwordLimpia);
 
