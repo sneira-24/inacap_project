@@ -108,22 +108,22 @@ async function seed() {
     {
       proyecto_id: platformV2._id,
       numero: 1,
-      fecha_inicio: new Date("2026-01-01"),
-      fecha_fin: new Date("2026-01-14"),
+      fecha_inicio: new Date("2026-05-20"),
+      fecha_fin: new Date("2026-06-13"),
       objetivo: "Configurar infrastructure",
     },
     {
       proyecto_id: platformV2._id,
       numero: 2,
-      fecha_inicio: new Date("2026-01-15"),
-      fecha_fin: new Date("2026-01-28"),
+      fecha_inicio: new Date("2026-06-15"),
+      fecha_fin: new Date("2026-07-11"),
       objetivo: "API endpoints básicos",
     },
     {
       proyecto_id: mobileApp._id,
       numero: 1,
-      fecha_inicio: new Date("2026-02-01"),
-      fecha_fin: new Date("2026-02-14"),
+      fecha_inicio: new Date("2026-07-19"),
+      fecha_fin: new Date("2026-08-20"),
       objetivo: "Setup proyecto React Native",
     },
   ]);
@@ -235,21 +235,14 @@ async function seed() {
       valor_nuevo: "alta",
       usuario_id: lider._id,
     },
-    {
-      tarea_id: tarea3._id,
-      campo: "asignado_a",
-      valor_anterior: "Sin asignar",
-      valor_nuevo: "Juan Pérez",
-      usuario_id: lider._id,
-    },
   ]);
   console.log("Cambios created");
 
-  console.log("✅ Seed completed successfully");
+  console.log("Seed Creada >:3");
   await mongoose.disconnect();
 }
 
 seed().catch((err) => {
-  console.error("Seed failed:", err);
+  console.error("Seed fallida :,c  :", err);
   process.exit(1);
 });

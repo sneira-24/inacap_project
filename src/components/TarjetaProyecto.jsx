@@ -1,5 +1,16 @@
 import React from "react";
 
+// Determina si la fecha de hoy está entre fecha_inicio y fecha_fin de un sprint
+const sprintActivo = (sprint) => {
+  if (!sprint.fecha_inicio || !sprint.fecha_fin) return false;
+
+  const hoy = new Date();
+  const inicio = new Date(sprint.fecha_inicio);
+  const fin = new Date(sprint.fecha_fin);
+
+  return hoy >= inicio && hoy <= fin;
+};
+
 const TarjetaProyecto = ({
   id,
   imagen,
@@ -29,18 +40,27 @@ const TarjetaProyecto = ({
           {sprints.length === 0 ? (
             <p>No hay Sprint para este Proyecto</p>
           ) : (
-            sprints.map((sprint) => (
-              <button
-                className="text-xs font-medium text-blue-600 bg-blue-50 hover:bg-blue-100 border border-blue-200 rounded-full px-3 py-1 transition-colors"
-                key={sprint._id}
-                onMouseEnter={() =>
-                  localStorage.setItem("idSprint", sprint._id)
-                }
-                onClick={onSprintClick}
-              >
-                Sprint {sprint.numero}
-              </button>
-            ))
+            sprints.map((sprint) => {
+              const activo = sprintActivo(sprint);
+
+              return (
+                <button
+                  className={`text-xs font-medium border rounded-full px-3 py-1 transition-colors cursor-pointer ${
+                    activo
+                      ? "bg-blue-600 text-white border-blue-600 hover:bg-blue-700"
+                      : "text-blue-600 bg-blue-50 border-blue-200 hover:bg-blue-100"
+                  }`}
+                  key={sprint._id}
+                  onMouseEnter={() =>
+                    localStorage.setItem("idSprint", sprint._id)
+                  }
+                  onClick={onSprintClick}
+                >
+                  Sprint {sprint.numero}
+                  {activo && " •"}
+                </button>
+              );
+            })
           )}
         </div>
 
