@@ -17,6 +17,8 @@ function TaskDetail({ tareaId, onVolver }) {
   const [horasInput, setHorasInput] = useState("");
   const [registrandoHoras, setRegistrandoHoras] = useState(false);
 
+  const [historialCambios, setHistorialCambios] = useState([]);
+
   // Función para cargar o recargar los datos
   const cargarDetalles = async () => {
     if (!window.dbAPI || !tareaId) {
@@ -35,6 +37,10 @@ function TaskDetail({ tareaId, onVolver }) {
 
       const comentariosDB = await window.dbAPI.getComentariosByTarea(tareaId);
       setComentarios(comentariosDB);
+
+      const cambiosDB = await window.dbAPI.find("CambioTarea", { tarea_id: tareaId }, "usuario_id");
+      setHistorialCambios(cambiosDB || []);
+
     } catch (error) {
       console.error("Error cargando los detalles de la tarea:", error);
     } finally {
@@ -57,9 +63,27 @@ function TaskDetail({ tareaId, onVolver }) {
       const respuesta = await window.dbAPI.updateTarea(tareaId, textoTemp.trim());
       
       if (respuesta.exito) {
-        // Actualizamos la tarea en pantalla y cerramos el modo edición
+        const sesion = JSON.parse(localStorage.getItem("usuarioActivo")) || {};
+        let usuarioId = tarea.asignado_a?._id; 
+        
+        if (sesion.email) {
+          const usuarios = await window.dbAPI.find("Usuario", { email: sesion.email });
+          if (usuarios.length > 0) usuarioId = usuarios[0]._id;
+        }
+
+        await window.dbAPI.create("CambioTarea", {
+          tarea_id: tareaId,
+          usuario_id: usuarioId,
+          campo: "Descripción",
+          valor_anterior: tarea.descripcion || "Sin descripción",
+          valor_nuevo: textoTemp.trim(),
+          fecha: new Date().toISOString()
+        });
+        // --------------------------------------------------
+
         setTarea({ ...tarea, descripcion: textoTemp.trim() });
         setEditando(false);
+        await cargarDetalles(); // Recargamos para que aparezca en la lista
       } else {
         alert(respuesta.mensaje || "Error al actualizar la tarea.");
       }
@@ -329,6 +353,32 @@ function TaskDetail({ tareaId, onVolver }) {
                 {registrandoHoras ? "Guardando..." : "Registrar"}
               </button>
             </div>
+          </div>
+
+          {/* Historial de Cambios */}
+          <div className="bg-gray-800 rounded-xl p-6 border border-gray-700 shadow-md mt-6">
+            <h2 className="text-xl font-semibold text-white mb-4">Historial de Cambios</h2>
+            {historialCambios.length === 0 ? (
+              <p className="text-gray-500 italic text-sm">No hay cambios registrados en esta tarea.</p>
+            ) : (
+              <div className="space-y-3 max-h-[250px] overflow-y-auto pr-2">
+                {historialCambios.map((cambio, index) => (
+                  <div key={index} className="flex flex-col bg-gray-900 p-3 rounded-lg border border-gray-700">
+                    <div className="flex justify-between items-center mb-1">
+                      <span className="text-blue-400 font-semibold text-sm">
+                        {cambio.usuario_id?.nombre || "Usuario"}
+                      </span>
+                      <span className="text-xs text-gray-500">
+                        {new Date(cambio.fecha).toLocaleString()}
+                      </span>
+                    </div>
+                    <p className="text-gray-300 text-sm">
+                      Modificó: <span className="font-semibold text-white">{cambio.campo}</span>
+                    </p>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         </div>
       </div>
