@@ -23,7 +23,7 @@ const TarjetaProyecto = ({
 }) => {
   return (
     <div className="flex items-center gap-4 bg-white rounded-xl p-3 hover:shadow-md transition-shadow">
-      <div className="flex-shrink-0">
+      <div className="shrink-0">
         <img
           src={imagen}
           alt={alt}

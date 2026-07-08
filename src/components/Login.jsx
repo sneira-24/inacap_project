@@ -8,14 +8,8 @@ function Login({ onLoginSuccess }) {
   const [mostrarPassword, setMostrarPassword] = useState(false);
 
   const validarEmail = (correo) => {
-    const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    const regex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
     return regex.test(correo);
-  };
-
-  const validarPassword = (password) => {
-    // Exige: 1 minúscula, 1 mayúscula, 1 número, 1 carácter especial, mínimo 8 de largo
-    const regex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,}$/;
-    return regex.test(password);
   };
 
   const handleLogin = async (e) => {
@@ -35,7 +29,7 @@ function Login({ onLoginSuccess }) {
       return;
     }
 
-    if (!email.endsWith('@project.cl')) {
+    if (!email.endsWith("@project.cl")) {
       setError("Acceso denegado: Utiliza tu correo corporativo (@project.cl).");
       return;
     }
@@ -43,15 +37,21 @@ function Login({ onLoginSuccess }) {
     setIsLoading(true);
 
     try {
-      if (window.dbAPI && window.dbAPI.validarLogin) {
+      if (window.dbAPI?.validarLogin) {
         // Llamamos al nuevo puente seguro
-        const respuesta = await window.dbAPI.validarLogin(correoLimpio, passwordLimpia);
+        const respuesta = await window.dbAPI.validarLogin(
+          correoLimpio,
+          passwordLimpia,
+        );
 
         if (respuesta.exito) {
           // Éxito: Guardamos la sesión y avanzamos
           localStorage.setItem(
             "usuarioActivo",
-            JSON.stringify({ email: respuesta.usuario.email, nombre: respuesta.usuario.nombre }),
+            JSON.stringify({
+              email: respuesta.usuario.email,
+              nombre: respuesta.usuario.nombre,
+            }),
           );
           onLoginSuccess(respuesta.usuario.email);
         } else {
@@ -60,7 +60,9 @@ function Login({ onLoginSuccess }) {
           setPassword("");
         }
       } else {
-        setError("Error del sistema: La API de base de datos no está disponible.");
+        setError(
+          "Error del sistema: La API de base de datos no está disponible.",
+        );
       }
     } catch (err) {
       console.error("Error al comunicarse con el servidor:", err);
@@ -72,7 +74,7 @@ function Login({ onLoginSuccess }) {
 
   return (
     <div className="flex justify-center items-center min-h-screen bg-gray-100">
-      <div className="bg-white p-10 rounded-xl shadow-lg w-full max-w-[400px]">
+      <div className="bg-white p-10 rounded-xl shadow-lg w-full max-w-100">
         <h2 className="text-center text-gray-800 mb-2 text-2xl font-semibold">
           Ingreso a ProjectHub
         </h2>
@@ -121,7 +123,7 @@ function Login({ onLoginSuccess }) {
               <input
                 type={mostrarPassword ? "text" : "password"}
                 id="password"
-                className="w-full p-3 pr-[70px] border border-gray-300 rounded-md text-base transition-colors focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/25 disabled:bg-gray-200 disabled:cursor-not-allowed"
+                className="w-full p-3 pr-17.5 border border-gray-300 rounded-md text-base transition-colors focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/25 disabled:bg-gray-200 disabled:cursor-not-allowed"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="********"
