@@ -20,23 +20,13 @@ const calcularPorcentaje = (proyecto) => {
   return Math.round((tareasCompletadas / todasLasTareas.length) * 100);
 };
 
-const fechasEjemplo = [
-  {
-    id: 1,
-    proyecto: "Proyecto A",
-    descripcion: "Entrega inicial",
-    fecha: "12/12/2012",
-  },
-  {
-    id: 2,
-    proyecto: "Proyecto B",
-    descripcion: "Revisión",
-    fecha: "15/12/2012",
-  },
-  { id: 3, proyecto: "Proyecto C", descripcion: "Cierre", fecha: "20/12/2012" },
-];
-
-const Dashboard = ({ onLogout, email, onSprintClick, onVerDetalle }) => {
+const Dashboard = ({
+  onLogout,
+  email,
+  onSprintClick,
+  onVerDetalle,
+  onSprintHover,
+}) => {
   const [proyectos, setProyectos] = useState([]);
 
   useEffect(() => {
@@ -78,6 +68,7 @@ const Dashboard = ({ onLogout, email, onSprintClick, onVerDetalle }) => {
                   porcentaje={calcularPorcentaje(p)}
                   sprints={p.sprints}
                   onSprintClick={onSprintClick}
+                  onSprintHover={onSprintHover}
                 />
               ))
             )}

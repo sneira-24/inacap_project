@@ -20,6 +20,7 @@ const TarjetaProyecto = ({
   porcentaje,
   onSprintClick,
   sprints = [],
+  onSprintHover,
 }) => {
   return (
     <div className="flex items-center gap-4 bg-white rounded-xl p-3 hover:shadow-md transition-shadow">
@@ -51,9 +52,7 @@ const TarjetaProyecto = ({
                       : "text-blue-600 bg-blue-50 border-blue-200 hover:bg-blue-100"
                   }`}
                   key={sprint._id}
-                  onMouseEnter={() =>
-                    localStorage.setItem("idSprint", sprint._id)
-                  }
+                  onMouseEnter={() => onSprintHover(sprint._id)}
                   onClick={onSprintClick}
                 >
                   Sprint {sprint.numero}

@@ -138,55 +138,55 @@ function Kanban({ id_sprint, onVolver, email }) {
 
   if (loading) {
     return (
-      <div className="p-6 w-full min-h-screen bg-linear-to-b from-zinc-900 to-zinc-800 flex items-center justify-center text-white">
+      <div className="p-6 w-full min-h-screen bg-gray-900 flex items-center justify-center text-gray-300">
         Cargando tareas...
       </div>
     );
   }
 
+  // Solid, flat accent colors per column (matches Dashboard's non-gradient style)
   const columnStyles = {
     todo: {
-      header: "bg-gradient-to-r from-blue-600 to-blue-400",
-      border: "border-blue-400",
+      header: "bg-blue-600",
+      dot: "bg-blue-500",
     },
     in_progress: {
-      header: "bg-gradient-to-r from-yellow-600 to-yellow-400",
-      border: "border-yellow-400",
+      header: "bg-amber-600",
+      dot: "bg-amber-500",
     },
     done: {
-      header: "bg-gradient-to-r from-green-600 to-green-400",
-      border: "border-green-400",
+      header: "bg-emerald-600",
+      dot: "bg-emerald-500",
     },
   };
 
   return (
-    <div
-      className="p-6 w-full min-h-screen bg-linear-to-b
-      from-zinc-900 to-zinc-800 flex flex-col items-center"
-    >
+    <div className="p-6 w-full min-h-screen bg-gray-900 flex flex-col items-center">
       <button
         onClick={onVolver}
         className="mb-6 self-start text-blue-400 hover:text-blue-300 font-bold flex items-center gap-2 transition-colors"
       >
         ← Volver al Dashboard
       </button>
+
       <div className="flex items-center justify-center flex-col gap-4 w-full max-w-6xl">
-        <h1 className="text-6xl font-bold mb-8 text-transparent bg-clip-text bg-linear-to-r from-yellow-400  via-amber-500 to-rose-400">
-          React Kanban Board
+        <h1 className="text-3xl font-bold mb-2 text-transparent bg-clip-text bg-linear-to-r from-blue-500 via-amber-500 to-emerald-500">
+          Tablero Kanban
         </h1>
-        <div className="mb-8 flex w-full max-w-2xl shadow-lg rounded-lg overflow-hidden">
+
+        <div className="mb-8 flex w-full max-w-2xl rounded-2xl overflow-hidden border border-gray-700 shadow-md">
           <input
             type="text"
             value={newTask}
             onChange={(e) => setNewTask(e.target.value)}
             placeholder="Agregar nueva tarea..."
-            className="grow min-w-0 p-3 bg-zinc-700 text-white placeholder-zinc-400 focus:outline-none"
+            className="grow min-w-0 p-3 bg-gray-800 text-gray-200 placeholder-gray-500 focus:outline-none"
             onKeyDown={(e) => e.key === "Enter" && addNewTask()}
           />
           <select
             value={newPrioridad}
             onChange={(e) => setNewPrioridad(e.target.value)}
-            className="p-3 bg-zinc-700 text-white border-l border-zinc-600 focus:outline-none"
+            className="p-3 bg-gray-800 text-gray-200 border-l border-gray-700 focus:outline-none"
           >
             <option value="baja">Baja</option>
             <option value="media">Media</option>
@@ -196,7 +196,7 @@ function Kanban({ id_sprint, onVolver, email }) {
           <select
             value={newStoryPoints}
             onChange={(e) => setNewStoryPoints(e.target.value)}
-            className="p-3 bg-zinc-700 text-white border-l border-zinc-600 focus:outline-none"
+            className="p-3 bg-gray-800 text-gray-200 border-l border-gray-700 focus:outline-none"
           >
             <option value="">Story Pts</option>
             {Array.from({ length: 11 }, (_, i) => (
@@ -207,31 +207,35 @@ function Kanban({ id_sprint, onVolver, email }) {
           </select>
           <button
             onClick={addNewTask}
-            className="px-6 bg-linear-to-r from-yellow-600 to-amber-500 text-white font-medium hover:from-yellow-500 hover:to-amber-500 transition-all duration-200 cursor-pointer whitespace-nowrap"
+            className="px-6 bg-blue-600 hover:bg-blue-500 text-white font-bold transition-colors cursor-pointer whitespace-nowrap"
           >
             Agregar
           </button>
         </div>
+
         <div className="flex gap-6 overflow-x-auto pb-6 w-full justify-center">
           {Object.keys(columns).map((columnId) => (
             <div
               key={columnId}
-              className={`shrink-0 w-80 bg-zinc-800 rounded-lg shadow-x1 border-t-4 ${columnStyles[columnId].border}`}
+              className="shrink-0 w-80 bg-gray-800 rounded-2xl shadow-md border border-gray-700"
               onDragOver={(e) => handleDragOver(e, columnId)}
               onDrop={(e) => handleDrop(e, columnId)}
             >
-              <div
-                className={`p-4 rounded-t-md ${columnStyles[columnId].header}`}
-              >
+              <div className="p-4 rounded-t-2xl border-b border-gray-700">
                 <div className="flex items-center justify-between">
-                  <h3 className="text-white font-bold text-xl">
-                    {column_labels[columnId]}
-                  </h3>
                   <div className="flex items-center gap-2">
-                    <span className="bg-black/20 text-white text-xs font-semibold px-2 py-1 rounded-full">
+                    <span
+                      className={`w-2.5 h-2.5 rounded-full ${columnStyles[columnId].dot}`}
+                    />
+                    <h3 className="text-gray-200 font-semibold text-lg">
+                      {column_labels[columnId]}
+                    </h3>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="bg-gray-700 text-gray-300 text-xs font-semibold px-2 py-1 rounded-full">
                       {columns[columnId].items.length} tareas
                     </span>
-                    <span className="bg-black/20 text-white text-xs font-semibold px-2 py-1 rounded-full">
+                    <span className="bg-gray-700 text-gray-300 text-xs font-semibold px-2 py-1 rounded-full">
                       {getColumnPoints(columns[columnId].items)} pts
                     </span>
                   </div>
@@ -239,23 +243,23 @@ function Kanban({ id_sprint, onVolver, email }) {
               </div>
               <div className="p-3 min-h-64">
                 {columns[columnId].items.length === 0 ? (
-                  <div className="text-center py-10 text-zinc-500 italic text-sm ">
+                  <div className="text-center py-10 text-gray-500 italic text-sm">
                     Arrastra las tareas aquí
                   </div>
                 ) : (
                   columns[columnId].items.map((item) => (
                     <div
                       key={item.id}
-                      className="p-4 mb-3 bg-zinc-700 text-white rounded-lg shadow-md cursor-move flex item-center justify-between transform transition-all duration-200 hover:scale-105 hover-shadow-lg"
+                      className="p-4 mb-3 bg-gray-700 text-gray-200 rounded-xl shadow-sm border border-gray-600 cursor-move flex items-center justify-between transition-colors duration-150 hover:bg-gray-650 hover:border-gray-500"
                       draggable
                       onDragStart={() => handleDragStart(columnId, item)}
                     >
                       <span className="mr-2">{item.content}</span>
                       <button
                         onClick={() => removeTask(columnId, item.id)}
-                        className="text-zinc-400 hover:text-red-400 transition-colors duration-400 w-6 h-6 flex items-center justify-center rounded-full hover:bg-zinc-600"
+                        className="text-gray-400 hover:text-red-400 transition-colors duration-200 w-6 h-6 flex items-center justify-center rounded-full hover:bg-gray-600"
                       >
-                        <span className="text-lg  cursor-pointer">x</span>
+                        <span className="text-lg cursor-pointer">x</span>
                       </button>
                     </div>
                   ))

@@ -15,7 +15,7 @@ function App() {
     return sesionGuardada ? JSON.parse(sesionGuardada).email : "";
   });
 
-  const [idSprint, setIdSprint] = useState(() => {});
+  const [selectedSprintId, setSelectedSprintId] = useState(null);
 
   const [idTareaSeleccionada, setIdTareaSeleccionada] = useState(null);
 
@@ -37,8 +37,7 @@ function App() {
     setVistaActual("login");
   };
 
-  const irAKanban = (id_sprint) => {
-    setIdSprint(localStorage.getItem("idSprint"));
+  const irAKanban = () => {
     setVistaActual("kanban");
   };
 
@@ -51,7 +50,8 @@ function App() {
           onLogout={manejarCerrarSesion}
           onVerDetalle={irADetalleTarea}
           email={emailUsuario}
-          onSprintClick={(idSprint) => irAKanban(idSprint)}
+          onSprintClick={irAKanban}
+          onSprintHover={setSelectedSprintId}
         />
       )}
 
@@ -61,7 +61,7 @@ function App() {
 
       {vistaActual === "kanban" && (
         <Kanban
-          id_sprint={idSprint}
+          id_sprint={selectedSprintId}
           onVolver={irAlDashboard}
           email={emailUsuario}
         />
