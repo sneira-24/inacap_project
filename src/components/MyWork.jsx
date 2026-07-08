@@ -61,7 +61,7 @@ function MyWork({ emailUsuario, onVerDetalle }) {
     return grupo;
   });
 
-  // Función formatear fechas a un formato amigable (DD/MM/YYYY)
+  // Función formatear fechas (DD/MM/YYYY)
   const formatearFecha = (fechaISO) => {
     if (!fechaISO) return "--/--/----";
     return new Date(fechaISO).toLocaleDateString("es-CL");
@@ -117,13 +117,20 @@ function MyWork({ emailUsuario, onVerDetalle }) {
           sprintsAgrupados.map((grupo, index) => (
             <div key={index} className="bg-gray-800/30 border border-gray-700 rounded-xl p-6">
               
-              {/* Título del Sprint con Rango de Fechas */}
-              <div className="mb-4 pb-3 border-b border-gray-700/50 flex flex-col md:flex-row md:items-center justify-between">
-                <h3 className="text-xl font-bold text-white flex items-center gap-2">
-                   {grupo.sprint?.nombre || "Backlog / Sin Sprint"}
-                </h3>
+              {/* Título del Sprint con Rango de Fechas usando los campos reales de la BD */}
+              <div className="mb-4 pb-3 border-b border-gray-700/50 flex flex-col md:flex-row md:items-start justify-between gap-2">
+                <div>
+                  <h3 className="text-xl font-bold text-white flex items-center gap-2">
+                    {grupo.sprint ? `Sprint N° ${grupo.sprint.numero || index + 1}` : "Backlog / Tareas sin Sprint"}
+                  </h3>
+                  {grupo.sprint?.objetivo && (
+                    <p className="text-xs text-gray-400 italic mt-1">
+                      Objetivo: {grupo.sprint.objetivo}
+                    </p>
+                  )}
+                </div>
                 {grupo.sprint && (
-                  <span className="text-sm font-medium text-blue-400 bg-blue-900/20 px-3 py-1 rounded-full mt-2 md:mt-0">
+                  <span className="text-sm font-medium text-blue-400 bg-blue-900/20 px-3 py-1 rounded-full whitespace-nowrap">
                     {formatearFecha(grupo.sprint.fecha_inicio)} — {formatearFecha(grupo.sprint.fecha_fin)}
                   </span>
                 )}
