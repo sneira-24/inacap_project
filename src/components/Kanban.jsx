@@ -113,6 +113,17 @@ function Kanban({ id_sprint, onVolver, email }) {
     if (sourceColumnID === columnID) return;
 
     await window.dbAPI.updateById("Tarea", item.id, { estado: columnID });
+    const usuario = await window.dbAPI.findOne("Usuario", { email: email });
+    const id_usuario = usuario._id;
+
+    const created = await window.dbAPI.create("CambioTarea", {
+      tarea_id: item.id,
+      campo: "estado",
+      valor_anterior: sourceColumnID,
+      valor_nuevo: columnID,
+      usuario_id: id_usuario,
+      fecha: new Date().toISOString(),
+    });
 
     const updatedColumns = { ...columns };
 
