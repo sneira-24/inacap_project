@@ -46,7 +46,7 @@ function MyWork({ emailUsuario, onVerDetalle }) {
     if (estado === "done" || estado === "completado") return false;
 
     // Filtrar tareas de Sprints cuya fecha de fin ya pasó
-    if (tarea.sprint_id && tarea.sprint_id.fecha_fin) {
+    if (tarea.sprint_id?.fecha_fin) {
       const fechaFinSprint = new Date(tarea.sprint_id.fecha_fin);
       fechaFinSprint.setHours(0, 0, 0, 0);
 

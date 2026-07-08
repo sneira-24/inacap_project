@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import TarjetaProyecto from "./TarjetaProyecto";
 import FechasProximas from "./FechasProximas";
-import patricioImg from "/src/images/patriciobebe.jpg";
+import patricioImg from "../images/patriciobebe.jpg";
 import MyWork from "./MyWork";
 
 // Recorre todas las tareas de todos los sprints de un proyecto,

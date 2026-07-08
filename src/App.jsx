@@ -3,7 +3,6 @@ import Login from "./components/Login";
 import Dashboard from "./components/Dashboard";
 import TaskDetail from "./components/TaskDetail";
 import Kanban from "./components/Kanban";
-import MyWork from "./components/MyWork";
 
 function App() {
   const [vistaActual, setVistaActual] = useState(() => {
@@ -38,12 +37,10 @@ function App() {
     setVistaActual("login");
   };
 
-  const irAKanban = () => {
+  const irAKanban = (id_sprint) => {
     setIdSprint(localStorage.getItem("idSprint"));
     setVistaActual("kanban");
   };
-
-  const irAMyWork = () => setVistaActual("myWork");
 
   return (
     <div className="app-container">
