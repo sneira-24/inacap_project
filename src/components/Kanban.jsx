@@ -14,17 +14,19 @@ const column_labels = {
 
 function groupTareasByEstado(tareas) {
   const columns = {
+    // Creamos la estructura de las columnas del Kanban
     todo: { nombre: "To Do", items: [] },
     in_progress: { nombre: "In Progress", items: [] },
     done: { nombre: "Done", items: [] },
   };
 
   tareas.forEach((t) => {
+    // Asignamos a su columna correspondiente segun su estado
     const estado = estados[t.estado] ? t.estado : "todo";
     columns[estado].items.push({
-      id: t._id.toString(),
-      content: t.titulo,
-      story_points: t.story_points ?? 0,
+      id: t._id.toString(), //incluimos id
+      content: t.titulo, // titulo
+      story_points: t.story_points ?? 0, // y story points. Si no tiene story points se le asignan 0.
     });
   });
 
@@ -32,10 +34,11 @@ function groupTareasByEstado(tareas) {
 }
 
 const getColumnPoints = (items) =>
-  items.reduce((sum, item) => sum + (item.story_points || 0), 0);
+  items.reduce((sum, item) => sum + (item.story_points || 0), 0); //Sumatoria de story points de columna en especifico
 
 function Kanban({ id_sprint, onVolver, email }) {
   const [columns, setColumns] = useState({
+    // Creamos el useState de las columnas para poder actualizarlas con el drag & drop
     todo: { nombre: "To Do", items: [] },
     in_progress: { nombre: "In Progress", items: [] },
     done: { nombre: "Done", items: [] },
@@ -45,95 +48,135 @@ function Kanban({ id_sprint, onVolver, email }) {
   const [newPrioridad, setNewPrioridad] = useState("media");
   const [newStoryPoints, setNewStoryPoints] = useState("");
   const [draggedItem, setDraggedItem] = useState(null);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
+    // Cargamos las tareas desde la base de datos
     if (!id_sprint) return;
     setLoading(true);
-    window.dbAPI.getTareasBySprint(id_sprint).then((tareas) => {
-      setColumns(groupTareasByEstado(tareas));
-      setLoading(false);
-    });
+    setError(null);
+
+    window.dbAPI
+      .getTareasBySprint(id_sprint)
+      .then((tareas) => {
+        setColumns(groupTareasByEstado(tareas)); // Asignamos a su columna correspondiente segun su estado
+        setLoading(false);
+      })
+      .catch((err) => {
+        console.error("Error al cargar tareas:", err);
+        setError(
+          "No se pudieron cargar las tareas. Verifica la conexión a la base de datos.",
+        );
+        setLoading(false);
+      });
   }, [id_sprint]);
 
   const addNewTask = async () => {
+    // Funcion para agregar nueva tarea
     if (newTask.trim() === "") return;
+    setError(null);
 
-    const usuario = await window.dbAPI.findOne("Usuario", { email: email });
-    const id_usuario = usuario._id;
+    try {
+      const usuario = await window.dbAPI.findOne("Usuario", { email: email }); //Se  busca la id del usuario por medio del email heredado de App
+      if (!usuario) throw new Error("Usuario no encontrado");
+      const id_usuario = usuario._id;
 
-    const created = await window.dbAPI.create("Tarea", {
-      sprint_id: id_sprint,
-      titulo: newTask,
-      descripcion: "",
-      asignado_a: id_usuario,
-      estado: "todo",
-      prioridad: newPrioridad,
-      story_points: newStoryPoints ? Number(newStoryPoints) : 0,
-    });
+      const created = await window.dbAPI.create("Tarea", {
+        // Se crea la variable tarea con todos los parametros necesarios
+        sprint_id: id_sprint,
+        titulo: newTask,
+        descripcion: "",
+        asignado_a: id_usuario,
+        estado: "todo",
+        prioridad: newPrioridad,
+        story_points: newStoryPoints ? Number(newStoryPoints) : 0,
+      });
 
-    const updatedColumns = { ...columns };
+      const updatedColumns = { ...columns }; //Se crea la variable updatedColumns que reemplazara la columna anterior con la tarea agregada
+      updatedColumns["todo"].items.push({
+        id: created._id,
+        content: created.titulo,
+        story_points: created.story_points,
+      });
 
-    updatedColumns["todo"].items.push({
-      id: created._id,
-      content: created.titulo,
-      story_points: created.story_points,
-    });
-
-    setColumns(updatedColumns);
-    setNewTask("");
-    setNewPrioridad("media");
-    setNewStoryPoints("");
+      setColumns(updatedColumns);
+      setNewTask("");
+      setNewPrioridad("media");
+      setNewStoryPoints("");
+    } catch (err) {
+      console.error("Error al crear tarea:", err);
+      setError("No se pudo crear la tarea. Intenta de nuevo.");
+    }
   };
 
   const removeTask = async (columnID, taskID) => {
-    await window.dbAPI.deleteById("Tarea", taskID);
-    const updatedColumns = { ...columns };
+    // Funcion para quitar tarea
+    setError(null);
+    try {
+      await window.dbAPI.deleteById("Tarea", taskID);
 
-    updatedColumns[columnID].items = updatedColumns[columnID].items.filter(
-      (item) => item.id !== taskID,
-    );
-
-    setColumns(updatedColumns);
+      const updatedColumns = { ...columns }; //Se crea la variable updatedColumns que reemplazara la columna anterior con la tarea quitada
+      updatedColumns[columnID].items = updatedColumns[columnID].items.filter(
+        (item) => item.id !== taskID,
+      );
+      setColumns(updatedColumns);
+    } catch (err) {
+      console.error("Error al eliminar tarea:", err);
+      setError("No se pudo eliminar la tarea. Intenta de nuevo.");
+    }
   };
 
+  // Funcion para guardar los datos del item siendo arrastrado
   const handleDragStart = (columnID, item) => {
     setDraggedItem({ columnID, item });
   };
 
+  // Prevenimos la actualizacion de pagina
   const handleDragOver = (e, column_id) => {
     e.preventDefault();
   };
 
+  // Funcion para dropear el item
   const handleDrop = async (e, columnID) => {
     e.preventDefault();
     if (!draggedItem) return;
+    setError(null);
 
     const { columnID: sourceColumnID, item } = draggedItem;
-    if (sourceColumnID === columnID) return;
+    if (sourceColumnID === columnID) return; // Si el item es dropeado en su columna original no se hace nada
 
-    await window.dbAPI.updateById("Tarea", item.id, { estado: columnID });
-    const usuario = await window.dbAPI.findOne("Usuario", { email: email });
-    const id_usuario = usuario._id;
+    // Primero intentamos hacer el cambio en la base de datos
+    try {
+      await window.dbAPI.updateById("Tarea", item.id, { estado: columnID });
 
-    await window.dbAPI.create("CambioTarea", {
-      tarea_id: item.id,
-      campo: "estado",
-      valor_anterior: sourceColumnID,
-      valor_nuevo: columnID,
-      usuario_id: id_usuario,
-      fecha: new Date().toISOString(),
-    });
+      const usuario = await window.dbAPI.findOne("Usuario", { email: email });
+      if (!usuario) throw new Error("Usuario no encontrado");
+      const id_usuario = usuario._id;
 
-    const updatedColumns = { ...columns };
+      await window.dbAPI.create("CambioTarea", {
+        tarea_id: item.id,
+        campo: "estado",
+        valor_anterior: sourceColumnID,
+        valor_nuevo: columnID,
+        usuario_id: id_usuario,
+        fecha: new Date().toISOString(),
+      });
 
-    updatedColumns[sourceColumnID].items = updatedColumns[
-      sourceColumnID
-    ].items.filter((i) => i.id !== item.id);
+      const updatedColumns = { ...columns }; // Se actualiza la columna de origen quitando la tarea movida
+      updatedColumns[sourceColumnID].items = updatedColumns[
+        sourceColumnID
+      ].items.filter((i) => i.id !== item.id);
+      updatedColumns[columnID].items.push(item); // Se agrega a la columna destino la tarea movida
 
-    updatedColumns[columnID].items.push(item);
-
-    setColumns(updatedColumns);
-    setDraggedItem(null);
+      setColumns(updatedColumns);
+    } catch (err) {
+      console.error("Error al mover tarea:", err);
+      setError(
+        "No se pudo mover la tarea. La tarjeta permanece en su estado original.",
+      );
+    } finally {
+      setDraggedItem(null);
+    }
   };
 
   if (loading) {
@@ -144,7 +187,6 @@ function Kanban({ id_sprint, onVolver, email }) {
     );
   }
 
-  // Solid, flat accent colors per column (matches Dashboard's non-gradient style)
   const columnStyles = {
     todo: {
       header: "bg-blue-600",
@@ -168,6 +210,12 @@ function Kanban({ id_sprint, onVolver, email }) {
       >
         ← Volver al Dashboard
       </button>
+
+      {error && (
+        <div className="mb-4 w-full max-w-2xl bg-red-900/40 border border-red-700 text-red-200 px-4 py-3 rounded-lg text-sm">
+          {error}
+        </div>
+      )}
 
       <div className="flex items-center justify-center flex-col gap-4 w-full max-w-6xl">
         <h1 className="text-3xl font-bold mb-2 text-transparent bg-clip-text bg-linear-to-r from-blue-500 via-amber-500 to-emerald-500">
