@@ -13,6 +13,10 @@ function TaskDetail({ tareaId, onVolver }) {
   const [editando, setEditando] = useState(false);
   const [textoTemp, setTextoTemp] = useState("");
 
+  // Estados para registro de tiempo
+  const [horasInput, setHorasInput] = useState("");
+  const [registrandoHoras, setRegistrandoHoras] = useState(false);
+
   // Función para cargar o recargar los datos
   const cargarDetalles = async () => {
     if (!window.dbAPI || !tareaId) {
@@ -105,6 +109,47 @@ function TaskDetail({ tareaId, onVolver }) {
       alert("Hubo un error al intentar guardar el comentario en la base de datos.");
     } finally {
       setEnviando(false);
+    }
+  };
+
+  // Función para registrar tiempo
+  const manejarRegistrarTiempo = async () => {
+    const horas = parseFloat(horasInput);
+    if (!horas || horas <= 0) {
+      alert("Por favor, ingresa un número válido de horas.");
+      return;
+    }
+
+    setRegistrandoHoras(true);
+    try {
+      // Obtener quién está registrando el tiempo
+      const sesion = JSON.parse(localStorage.getItem("usuarioActivo")) || {};
+      let usuarioId = tarea.asignado_a?._id; // Por defecto usamos al asignado
+
+      if (sesion.email) {
+        const usuarios = await window.dbAPI.find("Usuario", { email: sesion.email });
+        if (usuarios.length > 0) usuarioId = usuarios[0]._id;
+      }
+
+      // Crear el registro
+      const nuevoRegistro = {
+        tarea_id: tareaId,
+        usuario_id: usuarioId,
+        horas: horas,
+        fecha: new Date().toISOString(),
+        descripcion: "Registro de tiempo desde la vista de detalle"
+      };
+
+      await window.dbAPI.create("TimeEntry", nuevoRegistro);
+      
+      alert(`Se han registrado ${horas} horas a esta tarea.`);
+      setHorasInput("");
+      
+    } catch (error) {
+      console.error("Error al registrar tiempo:", error);
+      alert("Hubo un error al guardar el tiempo.");
+    } finally {
+      setRegistrandoHoras(false);
     }
   };
 
@@ -237,8 +282,10 @@ function TaskDetail({ tareaId, onVolver }) {
           </div>
         </div>
 
-        {/* Columna Derecha: Metadatos */}
+        {/* Columna Derecha: Metadatos y Registro de Tiempo */}
         <div className="space-y-6">
+          
+          {/* Detalles Técnicos */}
           <div className="bg-gray-800 rounded-xl p-6 border border-gray-700 shadow-md">
             <h2 className="text-xl font-semibold text-white mb-4">Detalles Técnicos</h2>
             <ul className="space-y-3">
@@ -256,8 +303,34 @@ function TaskDetail({ tareaId, onVolver }) {
               </li>
             </ul>
           </div>
-        </div>
 
+          {/* Bloque para Registrar Tiempo */}
+          <div className="bg-gray-800 rounded-xl p-6 border border-gray-700 shadow-md">
+            <h2 className="text-xl font-semibold text-white mb-4">Registrar Tiempo</h2>
+            <p className="text-sm text-gray-400 mb-4">
+              Ingresa las horas que le has dedicado a esta tarea.
+            </p>
+            <div className="flex gap-2">
+              <input
+                type="number"
+                min="0.5"
+                step="0.5"
+                placeholder="Ej: 2.5"
+                className="w-24 p-2 bg-gray-900 border border-gray-600 rounded-lg text-white focus:outline-none focus:border-blue-500 text-center"
+                value={horasInput}
+                onChange={(e) => setHorasInput(e.target.value)}
+                disabled={registrandoHoras}
+              />
+              <button
+                onClick={manejarRegistrarTiempo}
+                disabled={registrandoHoras || !horasInput}
+                className="flex-1 bg-purple-600 hover:bg-purple-500 disabled:bg-gray-700 text-white font-semibold rounded-lg transition-colors cursor-pointer"
+              >
+                {registrandoHoras ? "Guardando..." : "Registrar"}
+              </button>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );
