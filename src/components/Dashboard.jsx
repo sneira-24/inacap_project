@@ -60,7 +60,7 @@ const Dashboard = ({ onLogout, email, onSprintClick, onVerDetalle }) => {
       </nav>
 
       <div className="px-6">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6 items-start">
           <div className="md:col-span-2 bg-gray-800 rounded-2xl shadow-md p-6 border border-gray-700 flex flex-col gap-3">
             {proyectos.length === 0 ? (
               <p className="text-gray-400">Cargando proyectos...</p>
@@ -72,7 +72,7 @@ const Dashboard = ({ onLogout, email, onSprintClick, onVerDetalle }) => {
                   imagen={patricioImg}
                   alt={p.nombre}
                   titulo={p.nombre}
-                  fecha={new Date(p.fecha_inicio).toLocaleDateString("es-CL", {
+                  fecha={new Date(p.fecha_fin).toLocaleDateString("es-CL", {
                     timeZone: "UTC",
                   })}
                   porcentaje={calcularPorcentaje(p)}
@@ -83,11 +83,13 @@ const Dashboard = ({ onLogout, email, onSprintClick, onVerDetalle }) => {
             )}
           </div>
 
-          <div className="md:col-span-1 bg-white rounded-2xl shadow-md p-6 border border-gray-700">
-            <h2 className="text-lg font-semibold text-black-200 mb-3">
+          <div className="md:col-span-1 bg-gray-800 rounded-2xl shadow-md p-6 border border-gray-700">
+            <h2 className="text-lg font-semibold text-gray-200 mb-3">
               Fechas Importantes
             </h2>
-            <FechasProximas proyectos={proyectos} />
+            <div className="bg-white rounded-xl p-4 w-fit mx-auto">
+              <FechasProximas proyectos={proyectos} />
+            </div>
           </div>
         </div>
 

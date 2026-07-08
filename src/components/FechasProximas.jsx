@@ -71,30 +71,35 @@ const FechasProximas = ({ proyectos = [] }) => {
     const proyecto = finesProyecto.find((item) =>
       esMismoDia(item.fecha, diaSeleccionado),
     );
-    if (proyecto) return `Fecha esperada: ${proyecto.nombre}`;
+    if (proyecto) return `Fecha esperada de termino: ${proyecto.nombre}`;
 
     return "Sin eventos para este día";
   };
 
   return (
-    <div className="flex gap-6">
-      <DayPicker
-        mode="single"
-        selected={diaSeleccionado}
-        onSelect={setDiaSeleccionado}
-        modifiers={{
-          finProyecto: fechasFinProyecto,
-          urgente: fechasUrgentes,
-          feriado: fechasFeriados,
-        }}
-        modifiersClassNames={{
-          finProyecto: "!bg-blue-500 !text-white !rounded-full",
-          urgente: "!bg-red-500 !text-white !rounded-full",
-          feriado: "!bg-orange-400 !text-white !rounded-full",
-        }}
-      />
+    <div className="flex flex-wrap gap-4">
+      <div className="shrink-0">
+        <DayPicker
+          mode="single"
+          selected={diaSeleccionado}
+          onSelect={setDiaSeleccionado}
+          modifiers={{
+            finProyecto: fechasFinProyecto,
+            urgente: fechasUrgentes,
+            feriado: fechasFeriados,
+          }}
+          modifiersClassNames={{
+            finProyecto: "!bg-blue-500 !text-white !rounded-full",
+            urgente: "!bg-red-500 !text-white !rounded-full",
+            feriado: "!bg-orange-400 !text-white !rounded-full",
+          }}
+          classNames={{
+            selected: "",
+          }}
+        />
+      </div>
 
-      <div className="flex-1 pt-2">
+      <div className="min-w-[180px] flex-1 pt-2">
         {diaSeleccionado ? (
           <div>
             <p className="text-sm text-gray-500 mb-1">
