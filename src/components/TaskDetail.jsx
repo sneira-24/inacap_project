@@ -16,7 +16,7 @@ function TaskDetail({ tareaId, onVolver }) {
   // Estados para registro de tiempo
   const [horasInput, setHorasInput] = useState("");
   const [registrandoHoras, setRegistrandoHoras] = useState(false);
-
+  const [descTiempoInput, setDescTiempoInput] = useState("");
   const [historialCambios, setHistorialCambios] = useState([]);
 
   // Función para cargar o recargar los datos
@@ -367,30 +367,42 @@ function TaskDetail({ tareaId, onVolver }) {
 
           {/* Bloque para Registrar Tiempo */}
           <div className="bg-gray-800 rounded-xl p-6 border border-gray-700 shadow-md">
-            <h2 className="text-xl font-semibold text-white mb-4">
-              Registrar Tiempo
-            </h2>
+            <h2 className="text-xl font-semibold text-white mb-4">Registrar Tiempo</h2>
             <p className="text-sm text-gray-400 mb-4">
-              Ingresa las horas que le has dedicado a esta tarea.
+              Ingresa una breve descripción de tu avance y las horas dedicadas.
             </p>
-            <div className="flex gap-2">
+            
+            <div className="flex flex-col gap-3">
+              {/* Cajita de texto para la descripción */}
               <input
-                type="number"
-                min="0.5"
-                step="0.5"
-                placeholder="Ej: 2.5"
-                className="w-24 p-2 bg-gray-900 border border-gray-600 rounded-lg text-white focus:outline-none focus:border-blue-500 text-center"
-                value={horasInput}
-                onChange={(e) => setHorasInput(e.target.value)}
+                type="text"
+                placeholder="¿En qué trabajaste? (Ej: Configuré la base de datos)"
+                className="w-full p-2 bg-gray-900 border border-gray-600 rounded-lg text-white focus:outline-none focus:border-blue-500 text-sm"
+                value={descTiempoInput}
+                onChange={(e) => setDescTiempoInput(e.target.value)}
                 disabled={registrandoHoras}
               />
-              <button
-                onClick={manejarRegistrarTiempo}
-                disabled={registrandoHoras || !horasInput}
-                className="flex-1 bg-purple-600 hover:bg-purple-500 disabled:bg-gray-700 text-white font-semibold rounded-lg transition-colors cursor-pointer"
-              >
-                {registrandoHoras ? "Guardando..." : "Registrar"}
-              </button>
+              
+              {/* Cajita de horas y el botón */}
+              <div className="flex gap-2">
+                <input
+                  type="number"
+                  min="0.5"
+                  step="0.5"
+                  placeholder="Ej: 2.5"
+                  className="w-24 p-2 bg-gray-900 border border-gray-600 rounded-lg text-white focus:outline-none focus:border-blue-500 text-center"
+                  value={horasInput}
+                  onChange={(e) => setHorasInput(e.target.value)}
+                  disabled={registrandoHoras}
+                />
+                <button
+                  onClick={manejarRegistrarTiempo}
+                  disabled={registrandoHoras || !horasInput || !descTiempoInput?.trim()}
+                  className="flex-1 bg-purple-600 hover:bg-purple-500 disabled:bg-gray-700 disabled:text-gray-400 text-white font-semibold rounded-lg transition-colors cursor-pointer"
+                >
+                  {registrandoHoras ? "Guardando..." : "Registrar"}
+                </button>
+              </div>
             </div>
           </div>
 
