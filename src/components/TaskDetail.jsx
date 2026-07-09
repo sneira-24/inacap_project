@@ -178,7 +178,7 @@ function TaskDetail({ tareaId, onVolver }) {
         usuario_id: usuarioId,
         horas: horas,
         fecha: new Date().toISOString(),
-        descripcion: "Registro de tiempo desde la vista de detalle",
+        descripcion: descTiempoInput.trim(),
       };
 
       await window.dbAPI.create("TimeEntry", nuevoRegistro);
