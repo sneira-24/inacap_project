@@ -56,8 +56,6 @@ function TaskDetail({ tareaId, onVolver }) {
         "usuario_id",
       );
       setRegistrosTiempo(tiempoDB || []);
-
-
     } catch (error) {
       console.error("Error cargando los detalles de la tarea:", error);
     } finally {
@@ -162,9 +160,9 @@ function TaskDetail({ tareaId, onVolver }) {
   };
 
   // Función para registrar tiempo
- const manejarRegistrarTiempo = async () => {
+  const manejarRegistrarTiempo = async () => {
     const horas = Number.parseFloat(horasInput);
-    
+
     // Validar que las horas sean correctas
     if (!horas || horas <= 0) {
       alert("Por favor, ingresa un número válido de horas.");
@@ -202,14 +200,13 @@ function TaskDetail({ tareaId, onVolver }) {
       await window.dbAPI.create("TimeEntry", nuevoRegistro);
 
       alert(`Se han registrado ${horas} horas a esta tarea.`);
-      
+
       // Limpiar los campos del formulario
       setHorasInput("");
       setDescTiempoInput(""); // Limpiamos también el input de texto
-      
+
       // forzamos la recarga de los detalles para que aparezca el nuevo registro
       await cargarDetalles();
-
     } catch (error) {
       console.error("Error al registrar tiempo:", error);
       alert("Hubo un error al guardar el tiempo.");
@@ -360,10 +357,12 @@ function TaskDetail({ tareaId, onVolver }) {
             )}
           </div>
 
-        {/* Time Traking */}
+          {/* Time Traking */}
           <div className="bg-gray-800 rounded-xl p-6 border border-gray-700 shadow-md mt-6">
-            <h2 className="text-xl font-semibold text-white mb-4">Historial de Trabajo</h2>
-            
+            <h2 className="text-xl font-semibold text-white mb-4">
+              Historial de Trabajo
+            </h2>
+
             {!registrosTiempo || registrosTiempo.length === 0 ? (
               <p className="text-gray-400 text-sm italic border border-gray-700 bg-gray-900/50 p-4 rounded-lg text-center">
                 No hay horas registradas en esta tarea todavía.
@@ -381,32 +380,39 @@ function TaskDetail({ tareaId, onVolver }) {
                   </thead>
                   <tbody className="divide-y divide-gray-700 bg-gray-800">
                     {registrosTiempo.map((registro) => (
-                      <tr key={registro._id} className="hover:bg-gray-700/50 transition-colors">
-                        
+                      <tr
+                        key={registro._id}
+                        className="hover:bg-gray-700/50 transition-colors"
+                      >
                         {/* Usuario (Intenta buscar el nombre, sino el email) */}
                         <td className="px-4 py-3 font-medium text-blue-400">
-                          {registro.usuario_id?.nombre || registro.usuario_id?.email || "Usuario Oculto"}
+                          {registro.usuario_id?.nombre ||
+                            registro.usuario_id?.email ||
+                            "Usuario Oculto"}
                         </td>
-                        
+
                         {/* Horas */}
                         <td className="px-4 py-3 font-bold text-purple-400 text-center">
                           {registro.horas}h
                         </td>
-                        
+
                         {/* Descripción */}
                         <td className="px-4 py-3 text-gray-200">
                           {registro.descripcion || "Sin descripción"}
                         </td>
-                        
+
                         {/* Fecha (Formateada a DD/MM/YYYY HH:MM) */}
                         <td className="px-4 py-3 text-gray-500 text-xs whitespace-nowrap">
-                          {new Date(registro.fecha).toLocaleDateString("es-CL", {
-                            day: "2-digit", 
-                            month: "short", 
-                            year: "numeric", 
-                            hour: "2-digit", 
-                            minute: "2-digit"
-                          })}
+                          {new Date(registro.fecha).toLocaleDateString(
+                            "es-CL",
+                            {
+                              day: "2-digit",
+                              month: "short",
+                              year: "numeric",
+                              hour: "2-digit",
+                              minute: "2-digit",
+                            },
+                          )}
                         </td>
                       </tr>
                     ))}
@@ -448,11 +454,13 @@ function TaskDetail({ tareaId, onVolver }) {
 
           {/* Bloque para Registrar Tiempo */}
           <div className="bg-gray-800 rounded-xl p-6 border border-gray-700 shadow-md">
-            <h2 className="text-xl font-semibold text-white mb-4">Registrar Tiempo</h2>
+            <h2 className="text-xl font-semibold text-white mb-4">
+              Registrar Tiempo
+            </h2>
             <p className="text-sm text-gray-400 mb-4">
               Ingresa una breve descripción de tu avance y las horas dedicadas.
             </p>
-            
+
             <div className="flex flex-col gap-3">
               {/* Cajita de texto para la descripción */}
               <input
@@ -463,7 +471,7 @@ function TaskDetail({ tareaId, onVolver }) {
                 onChange={(e) => setDescTiempoInput(e.target.value)}
                 disabled={registrandoHoras}
               />
-              
+
               {/* Cajita de horas y el botón */}
               <div className="flex gap-2">
                 <input
@@ -478,7 +486,9 @@ function TaskDetail({ tareaId, onVolver }) {
                 />
                 <button
                   onClick={manejarRegistrarTiempo}
-                  disabled={registrandoHoras || !horasInput || !descTiempoInput?.trim()}
+                  disabled={
+                    registrandoHoras || !horasInput || !descTiempoInput?.trim()
+                  }
                   className="flex-1 bg-purple-600 hover:bg-purple-500 disabled:bg-gray-700 disabled:text-gray-400 text-white font-semibold rounded-lg transition-colors cursor-pointer"
                 >
                   {registrandoHoras ? "Guardando..." : "Registrar"}
@@ -511,12 +521,21 @@ function TaskDetail({ tareaId, onVolver }) {
                         {new Date(cambio.fecha).toLocaleString()}
                       </span>
                     </div>
-                    <p className="text-gray-300 text-sm">
+                    <p className="text-gray-300 text-sm mb-1">
                       Modificó:{" "}
                       <span className="font-semibold text-white">
                         {cambio.campo}
                       </span>
                     </p>
+                    <div className="flex items-center gap-2 text-xs flex-wrap">
+                      <span className="bg-red-900/40 text-red-300 px-2 py-0.5 rounded border border-red-800/50">
+                        {cambio.valor_anterior || "—"}
+                      </span>
+                      <span className="text-gray-500">→ </span>
+                      <span className="bg-green-900/40 text-green-300 px-2 py-0.5 rounded border border-green-800/50">
+                        {cambio.valor_nuevo || "—"}
+                      </span>
+                    </div>
                   </div>
                 ))}
               </div>
