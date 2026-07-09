@@ -73,19 +73,19 @@ function Login({ onLoginSuccess }) {
   };
 
   return (
-    <div className="flex justify-center items-center min-h-screen bg-gray-100">
-      <div className="bg-white p-10 rounded-xl shadow-lg w-full max-w-100">
-        <h2 className="text-center text-gray-800 mb-2 text-2xl font-semibold">
+    <div className="flex justify-center items-center min-h-screen bg-gray-900">
+      <div className="bg-gray-800 p-10 rounded-2xl shadow-md border border-gray-700 w-full max-w-100">
+        <h2 className="text-center text-gray-200 mb-2 text-2xl font-semibold">
           Ingreso a ProjectHub
         </h2>
-        <p className="text-center text-gray-500 mb-8 text-sm">
+        <p className="text-center text-gray-400 mb-8 text-sm">
           Inicia sesión para ver tus tareas
         </p>
 
         <form onSubmit={handleLogin} noValidate>
           {error && (
             <div
-              className="text-red-600 font-bold mb-6"
+              className="text-red-400 font-bold mb-6"
               role="alert"
               aria-live="assertive"
             >
@@ -96,14 +96,14 @@ function Login({ onLoginSuccess }) {
           <div className="mb-6">
             <label
               htmlFor="email"
-              className="block mb-2 font-semibold text-gray-700 text-sm"
+              className="block mb-2 font-semibold text-gray-300 text-sm"
             >
               Correo del Desarrollador
             </label>
             <input
               type="email"
               id="email"
-              className="w-full p-3 border border-gray-300 rounded-md text-base transition-colors focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/25 disabled:bg-gray-200 disabled:cursor-not-allowed"
+              className="w-full p-3 bg-gray-700 border border-gray-600 rounded-md text-base text-gray-200 placeholder-gray-500 transition-colors focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/25 disabled:bg-gray-800 disabled:cursor-not-allowed"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="dev1@project.cl"
@@ -115,7 +115,7 @@ function Login({ onLoginSuccess }) {
           <div className="mb-6">
             <label
               htmlFor="password"
-              className="block mb-2 font-semibold text-gray-700 text-sm"
+              className="block mb-2 font-semibold text-gray-300 text-sm"
             >
               Contraseña
             </label>
@@ -123,7 +123,7 @@ function Login({ onLoginSuccess }) {
               <input
                 type={mostrarPassword ? "text" : "password"}
                 id="password"
-                className="w-full p-3 pr-17.5 border border-gray-300 rounded-md text-base transition-colors focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/25 disabled:bg-gray-200 disabled:cursor-not-allowed"
+                className="w-full p-3 pr-17.5 bg-gray-700 border border-gray-600 rounded-md text-base text-gray-200 placeholder-gray-500 transition-colors focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/25 disabled:bg-gray-800 disabled:cursor-not-allowed"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="********"
@@ -132,7 +132,7 @@ function Login({ onLoginSuccess }) {
               />
               <button
                 type="button"
-                className="absolute right-2.5 bg-transparent border-none text-blue-500 text-sm font-semibold cursor-pointer p-0 hover:underline hover:text-blue-700 disabled:text-gray-300 disabled:cursor-not-allowed"
+                className="absolute right-2.5 bg-transparent border-none text-blue-400 text-sm font-semibold cursor-pointer p-0 hover:underline hover:text-blue-300 disabled:text-gray-600 disabled:cursor-not-allowed"
                 onClick={() => setMostrarPassword(!mostrarPassword)}
                 disabled={isLoading}
                 aria-label={
@@ -146,7 +146,7 @@ function Login({ onLoginSuccess }) {
 
           <button
             type="submit"
-            className="w-full p-3 mt-4 bg-blue-500 text-white border-none rounded-md text-base font-bold cursor-pointer transition-colors hover:not-disabled:bg-blue-700 disabled:bg-blue-300 disabled:cursor-not-allowed"
+            className="w-full p-3 mt-4 bg-blue-600 text-white border-none rounded-md text-base font-bold cursor-pointer transition-colors hover:not-disabled:bg-blue-500 disabled:bg-blue-900 disabled:cursor-not-allowed"
             disabled={isLoading}
           >
             {isLoading ? "Verificando credenciales..." : "Entrar al Tablero"}
