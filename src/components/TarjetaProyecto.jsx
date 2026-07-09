@@ -1,10 +1,13 @@
 import React from "react";
 
-const esSprintActivo = (sprint) => {
+// Determina si la fecha de hoy está entre fecha_inicio y fecha_fin de un sprint
+const sprintActivo = (sprint) => {
   if (!sprint.fecha_inicio || !sprint.fecha_fin) return false;
+
   const hoy = new Date();
   const inicio = new Date(sprint.fecha_inicio);
   const fin = new Date(sprint.fecha_fin);
+
   return hoy >= inicio && hoy <= fin;
 };
 
@@ -17,10 +20,11 @@ const TarjetaProyecto = ({
   porcentaje,
   onSprintClick,
   sprints = [],
+  onSprintHover,
 }) => {
   return (
-    <div className="flex items-center gap-4 bg-gray-700 rounded-xl p-3 border border-gray-600 hover:border-gray-500 transition-colors">
-      <div className="flex-shrink-0">
+    <div className="flex items-center gap-4 bg-gray-800 rounded-xl p-3 border border-gray-600 hover:border-gray-500 transition-colors">
+      <div className="shrink-0">
         <img
           src={imagen}
           alt={alt}
@@ -40,7 +44,8 @@ const TarjetaProyecto = ({
             </p>
           ) : (
             sprints.map((sprint) => {
-              const activo = esSprintActivo(sprint);
+              const activo = sprintActivo(sprint);
+
               return (
                 <button
                   className={`text-xs font-medium border rounded-full px-3 py-1 transition-colors cursor-pointer ${
@@ -49,9 +54,7 @@ const TarjetaProyecto = ({
                       : "text-blue-400 bg-gray-800 border-gray-600 hover:bg-gray-700"
                   }`}
                   key={sprint._id}
-                  onMouseEnter={() =>
-                    localStorage.setItem("idSprint", sprint._id)
-                  }
+                  onMouseEnter={() => onSprintHover(sprint._id)}
                   onClick={onSprintClick}
                 >
                   Sprint {sprint.numero}
