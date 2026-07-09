@@ -359,6 +359,62 @@ function TaskDetail({ tareaId, onVolver }) {
               </div>
             )}
           </div>
+
+        {/* Time Traking */}
+          <div className="bg-gray-800 rounded-xl p-6 border border-gray-700 shadow-md mt-6">
+            <h2 className="text-xl font-semibold text-white mb-4">Historial de Trabajo</h2>
+            
+            {!registrosTiempo || registrosTiempo.length === 0 ? (
+              <p className="text-gray-400 text-sm italic border border-gray-700 bg-gray-900/50 p-4 rounded-lg text-center">
+                No hay horas registradas en esta tarea todavía.
+              </p>
+            ) : (
+              <div className="overflow-x-auto rounded-lg border border-gray-700 shadow-sm">
+                <table className="w-full text-left text-sm text-gray-300">
+                  <thead className="bg-gray-900 text-gray-400 uppercase text-xs">
+                    <tr>
+                      <th className="px-4 py-3">Usuario</th>
+                      <th className="px-4 py-3 text-center">Horas</th>
+                      <th className="px-4 py-3">Descripción</th>
+                      <th className="px-4 py-3">Fecha</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-gray-700 bg-gray-800">
+                    {registrosTiempo.map((registro) => (
+                      <tr key={registro._id} className="hover:bg-gray-700/50 transition-colors">
+                        
+                        {/* Usuario (Intenta buscar el nombre, sino el email) */}
+                        <td className="px-4 py-3 font-medium text-blue-400">
+                          {registro.usuario_id?.nombre || registro.usuario_id?.email || "Usuario Oculto"}
+                        </td>
+                        
+                        {/* Horas */}
+                        <td className="px-4 py-3 font-bold text-purple-400 text-center">
+                          {registro.horas}h
+                        </td>
+                        
+                        {/* Descripción */}
+                        <td className="px-4 py-3 text-gray-200">
+                          {registro.descripcion || "Sin descripción"}
+                        </td>
+                        
+                        {/* Fecha (Formateada a DD/MM/YYYY HH:MM) */}
+                        <td className="px-4 py-3 text-gray-500 text-xs whitespace-nowrap">
+                          {new Date(registro.fecha).toLocaleDateString("es-CL", {
+                            day: "2-digit", 
+                            month: "short", 
+                            year: "numeric", 
+                            hour: "2-digit", 
+                            minute: "2-digit"
+                          })}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </div>
         </div>
 
         {/* Columna Derecha: Metadatos y Registro de Tiempo */}
@@ -429,63 +485,6 @@ function TaskDetail({ tareaId, onVolver }) {
                 </button>
               </div>
             </div>
-          </div>
-
-          {/* Time Traking */}
-          <div className="bg-gray-800 rounded-xl p-6 border border-gray-700 shadow-md mt-6">
-            <h2 className="text-xl font-semibold text-white mb-4">Historial de Trabajo</h2>
-            
-            {!registrosTiempo || registrosTiempo.length === 0 ? (
-              <p className="text-gray-400 text-sm italic border border-gray-700 bg-gray-900/50 p-4 rounded-lg text-center">
-                No hay horas registradas en esta tarea todavía.
-              </p>
-            ) : (
-              <div className="overflow-x-auto rounded-lg border border-gray-700 shadow-sm">
-                <table className="w-full text-left text-sm text-gray-300">
-                  <thead className="bg-gray-900 text-gray-400 uppercase text-xs">
-                    <tr>
-                      <th className="px-4 py-3">Usuario</th>
-                      <th className="px-4 py-3 text-center">Horas</th>
-                      <th className="px-4 py-3">Descripción</th>
-                      <th className="px-4 py-3">Fecha</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-gray-700 bg-gray-800">
-                    {registrosTiempo.map((registro) => (
-                      <tr key={registro._id} className="hover:bg-gray-700/50 transition-colors">
-                        
-                        {/* Usuario (Intenta buscar el nombre, sino el email) */}
-                        <td className="px-4 py-3 font-medium text-blue-400">
-                          {registro.usuario_id?.nombre || registro.usuario_id?.email || "Usuario Oculto"}
-                        </td>
-                        
-                        {/* Horas */}
-                        <td className="px-4 py-3 font-bold text-purple-400 text-center">
-                          {registro.horas}h
-                        </td>
-                        
-                        {/* Descripción */}
-                        <td className="px-4 py-3 text-gray-200">
-                          {registro.descripcion || "Sin descripción"}
-                        </td>
-                        
-                        {/* Fecha (Formateada a DD/MM/YYYY HH:MM) */}
-                        <td className="px-4 py-3 text-gray-500 text-xs whitespace-nowrap">
-                          {new Date(registro.fecha).toLocaleDateString("es-CL", {
-                            day: "2-digit", 
-                            month: "short", 
-                            year: "numeric", 
-                            hour: "2-digit", 
-                            minute: "2-digit"
-                          })}
-                        </td>
-                        
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            )}
           </div>
 
           {/* Historial de Cambios */}
